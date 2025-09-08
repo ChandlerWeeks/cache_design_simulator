@@ -1,18 +1,17 @@
-#include "DataReciever.h"
+#include "config_retrieval.h"
 #include <iostream>
 #include <fstream>
 
-DataReciever::DataReciever() {
+ConfigRetrieval::ConfigRetrieval() {
   config_dir = "./memhier/trace.config";
-  trace_path = "./memhier/trace.dat";
 }
 
-std::vector<std::string> DataReciever::get_configuration() {
+std::vector<std::string> ConfigRetrieval::get_configuration() {
   std::vector<std::string> results;
   std::ifstream file(config_dir);
 
   if (!file.is_open()) {
-    std::cout << "Shit's broke";
+    std::cout << "Error reading config file";
     return results;
   }
 
@@ -29,7 +28,7 @@ std::vector<std::string> DataReciever::get_configuration() {
   return results;
 }
 
-void DataReciever::set_config_parameters(std::vector<std::string> parameters) {
+void ConfigRetrieval::set_config_parameters(std::vector<std::string> parameters) {
   for (std::string line : parameters) {
     // break the string in half based on the : delimiter
     size_t delimiter_pos = line.find(":");
@@ -40,4 +39,8 @@ void DataReciever::set_config_parameters(std::vector<std::string> parameters) {
 
     config_parameters[key] = value;
   }
+}
+
+std::unordered_map<std::string, std::string> ConfigRetrieval::get_config_mapping() {
+  return config_parameters;
 }
