@@ -11,7 +11,7 @@ std::vector<std::string> ConfigRetrieval::get_configuration() {
   std::ifstream file(config_dir);
 
   if (!file.is_open()) {
-    std::cout << "Error reading config file";
+    std::cout << "Error reading config file.\n";
     return results;
   }
 
@@ -28,8 +28,13 @@ std::vector<std::string> ConfigRetrieval::get_configuration() {
   return results;
 }
 
+// Set a mapping of keys to values for each part of the simulation
 void ConfigRetrieval::set_config_parameters(std::vector<std::string> parameters) {
+  std::string current_section;
+
   for (std::string line : parameters) {
+    // determine if working in a section
+
     // break the string in half based on the : delimiter
     size_t delimiter_pos = line.find(":");
     if (delimiter_pos == std::string::npos) continue; // skip if no colon
