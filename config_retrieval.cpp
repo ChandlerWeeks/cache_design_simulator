@@ -30,10 +30,23 @@ std::vector<std::string> ConfigRetrieval::get_configuration() {
 
 // Set a mapping of keys to values for each part of the simulation
 void ConfigRetrieval::set_config_parameters(std::vector<std::string> parameters) {
-  std::string current_section;
+  std::string currSection;
 
   for (std::string line : parameters) {
-    // determine if working in a section
+    // determine if a section change occurs
+    if (line == "Data TLB configuration\n") {
+      std::cout << "Good sign";
+      currSection = "TLB";
+    } else if (line == "Page Table configuration") {
+      std::cout << "Double good sign\n";
+      currSection = "Page Table";
+    } else if (line == "Data Cache configuration") {
+      std::cout << "Triple good sign\n";
+      currSection = "Data Cache";
+    } else if (line == "L2 Cache configuration") {
+      std::cout << "QUADRUPLE RAHHH";
+      currSection = "L2 Cache";
+    }
 
     // break the string in half based on the : delimiter
     size_t delimiter_pos = line.find(":");
@@ -42,7 +55,7 @@ void ConfigRetrieval::set_config_parameters(std::vector<std::string> parameters)
     std::string key = line.substr(0, delimiter_pos);
     std::string value = line.substr(delimiter_pos+1);
 
-    config_parameters[key] = value;
+    config_parameters[currSection + key] = value;
   }
 }
 

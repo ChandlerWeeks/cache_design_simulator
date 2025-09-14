@@ -3,7 +3,7 @@
 #include "cache.h"
 
 int main() {
-    ConfigRetrieval config_retriever;
+    ConfigRetrieval configRetriever;
     std::vector<std::string> results = configRetriever.get_configuration();
 
     // Now use the mapping
@@ -23,8 +23,9 @@ int init_PT() {
 // L1 Cache, smaller but faster cache
 int init_data_cache(ConfigRetrieval configRetriever) {
   L1Cache dataCache(
-    configRetriever[]
-  )
+
+  );
+  return 1;
 }
 
 // L2 Cache, bigger but smaller
