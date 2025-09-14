@@ -1,14 +1,7 @@
 #include "config_retrieval.h"
+#include <stdexcept>
 #include "simulator.h"
 #include "cache.h"
-
-int main() {
-    ConfigRetrieval configRetriever;
-    std::vector<std::string> results = configRetriever.get_configuration();
-
-    // Now use the mapping
-    Simulator sim(configRetriever.get_config_mapping());
-}
 
 //Data Translation Lookaside Buffer, cache for virtual memory address translations to physical memory
 int init_DTLB() {
@@ -21,14 +14,33 @@ int init_PT() {
 }
 
 // L1 Cache, smaller but faster cache
-int init_data_cache(ConfigRetrieval configRetriever) {
-  L1Cache dataCache(
-
-  );
-  return 1;
+L1Cache init_data_cache(ConfigRetrieval configRetriever) {
+    L1Cache dataCache{
+        static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Number of sets"))),
+        static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Set size"))),
+        static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Line size"))),
+        configRetriever.get_config_mapping().at("Data Cache Write through/no write allocate") == "y"
+    };
+  return dataCache;
 }
 
 // L2 Cache, bigger but smaller
-int init_L2() {
-  return 1;
+L2Cache init_L2(ConfigRetrieval configRetriever) {
+      L2Cache L2Cache{
+        static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Number of sets"))),
+        static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Set size"))),
+        static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Line size"))),
+        configRetriever.get_config_mapping().at("Data Cache Write through/no write allocate") == "y"
+    };
+  return L2Cache;
+}
+
+int main() {
+    ConfigRetrieval configRetriever;
+    std::vector<std::string> results = configRetriever.get_configuration();
+    L1Cache dataCache = init_data_cache(configRetriever);
+    L2Cache L2Cache = init_L2(configRetriever);
+
+    // Now use the mapping
+    Simulator sim(dataCache, L2Cache);
 }

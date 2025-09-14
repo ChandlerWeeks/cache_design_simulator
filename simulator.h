@@ -1,10 +1,11 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include "cache.h"
 
 class Simulator {
   public:
-    Simulator(std::unordered_map<std::string, std::string> config_parameters);
+    Simulator(L1Cache dataCache, L2Cache L2Cache);
   private:
-    void print_hierarchy_setup(std::unordered_map<std::string, std::string> config_parameters);
+    void print_hierarchy_setup(L1Cache dataCache, L2Cache L2Cache);
 };

@@ -34,18 +34,14 @@ void ConfigRetrieval::set_config_parameters(std::vector<std::string> parameters)
 
   for (std::string line : parameters) {
     // determine if a section change occurs
-    if (line == "Data TLB configuration\n") {
-      std::cout << "Good sign";
-      currSection = "TLB";
+    if (line == "Data TLB configuration") {
+      currSection = "TLB ";
     } else if (line == "Page Table configuration") {
-      std::cout << "Double good sign\n";
-      currSection = "Page Table";
+      currSection = "Page Table ";
     } else if (line == "Data Cache configuration") {
-      std::cout << "Triple good sign\n";
-      currSection = "Data Cache";
+      currSection = "Data Cache ";
     } else if (line == "L2 Cache configuration") {
-      std::cout << "QUADRUPLE RAHHH";
-      currSection = "L2 Cache";
+      currSection = "L2 Cache ";
     }
 
     // break the string in half based on the : delimiter

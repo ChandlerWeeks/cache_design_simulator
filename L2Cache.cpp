@@ -2,7 +2,7 @@
 #include <iostream>
 
 // L1_cache attributes
-L1Cache::L1Cache(uint16_t numSets, uint16_t setSize, uint16_t lineSize, bool writeThrough) {
+L2Cache::L2Cache(uint16_t numSets, uint16_t setSize, uint16_t lineSize, bool writeThrough) {
   this->numSets = numSets;
   this->setSize = setSize;
   this->lineSize = lineSize;
@@ -10,15 +10,15 @@ L1Cache::L1Cache(uint16_t numSets, uint16_t setSize, uint16_t lineSize, bool wri
   determineCacheProperties();
 }
 
-void L1Cache::determineCacheProperties() {
+void L2Cache::determineCacheProperties() {
   cacheSize = numSets * setSize * lineSize;
   blockOffsetSize = log2(cacheSize);
   indexSize = log2(numSets);
   tagSize = 32 - indexSize - blockOffsetSize;
 }
 
-void L1Cache::printCacheInfo() {
-  std::cout << "D-cache contains " << numSets << " sets.\n";
+void L2Cache::printCacheInfo() {
+  std::cout << "L2 Cache contains " << numSets << " sets.\n";
   std::cout << "Each set contains " << setSize << " entries.\n";
   std::cout << "Each line is " << lineSize << " bytes.\n";
   if (writeThrough) {
