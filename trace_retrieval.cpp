@@ -1,0 +1,56 @@
+#include "trace_retrieval.h"
+#include <iostream>
+#include <fstream>
+
+TraceReciever::TraceReciever() {
+  tracePath = "./memhier/trace.dat";
+}
+
+void TraceReciever::getInstructions() {
+  std::vector<std::string> results;
+  std::ifstream file(tracePath);
+
+  if (!file.is_open()) {
+    std::cout << "Error reading config file.\n";
+    return;
+  }
+  std::vector<std::string> actions;
+
+  std::string line;
+  while (std::getline(file, line)) {
+    actions.push_back(line);
+  }
+  file.close();
+
+  setTraceConfiguration(actions);
+}
+
+// extract the data from the line
+void TraceReciever::setTraceConfiguration(std::vector<std::string> actions) {
+  for (std::string line : actions) {
+    size_t delimiter_pos = line.find(":");
+    if (delimiter_pos == std::string::npos) continue;
+
+    std::string actionType = line.substr(0, delimiter_pos);
+    std::string address = line.substr(delimiter_pos+1);
+
+    std::array<std::string, 2> instruction = {actionType, address};
+
+    instructionQueue.push(instruction);
+  }
+}
+
+// get the top instruction, and remove it from the queue
+std::array<std::string, 2> TraceReciever::getRecentInstruction() {
+  std::array<std::string, 2> instruction = instructionQueue.front();
+  instructionQueue.pop();
+  return instruction;
+}
+
+bool TraceReciever::isQueueEmpty() {
+  return (instructionQueue.size() == 0);
+}
+
+bool TraceReciever::isNextRead() {
+  return (instructionQueue.front()[0] == "R");
+}
