@@ -26,6 +26,10 @@ void CacheLine::setTimestamp(uint64_t timestamp) {
   this->timestamp = timestamp;
 }
 
+void CacheLine::setDirtyBit() {
+  this->dirty = true;
+}
+
 uint64_t CacheLine::getTimestamp() {
   return timestamp;
 }

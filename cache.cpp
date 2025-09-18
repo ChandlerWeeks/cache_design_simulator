@@ -97,4 +97,37 @@ bool Cache::cacheWrite(uint32_t address) {
     uint32_t tag;
 
     extract_address_properties(address, &offset, &index, &tag);
+    
+    // find the cache set, check each block in the set
+    std::vector<CacheLine>& set = cache[index];
+    for (CacheLine &line : set) {
+      if (line.isCacheHit(tag) && line.isValid()) {
+        std::cout << "HIT" << std::endl;
+        // WRITE THROUGH: write down to each tier of cache
+        if (writeThrough) {
+          std::cout << "HIT" << std::endl;
+          line.setTimestamp(timestamp);
+          return true; // successful run
+        } else { // Write Back policy: dont write down to each tier, dirty bit
+          std::cout << "HIT" << std::endl;
+          line.setTimestamp(timestamp);
+          line.setDirtyBit();
+          return true; // successful run
+        }
+      }
+    }
+
+    std::cout << "MISS" << std::endl;
+    if (writeThrough) {
+      return true;
+    }
+    // handle the cache miss
+    CacheLine* oldest = &set[0];
+    for (CacheLine line : set) {
+      if (oldest->getTimestamp() > line.getTimestamp()) {
+        // allocate a new block in cache, work down
+        std::cout << "" << std::endl;
+        oldest = &line;
+      }
+    }
 }

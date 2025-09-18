@@ -16,6 +16,7 @@ class CacheLine {
     bool isCacheHit(uint32_t tag);
     bool replaceCache(uint32_t tag, bool dirty);
     void setTimestamp(uint64_t timestamp);
+    void setDirtyBit();
     uint64_t getTimestamp();
     bool isValid();
 };
