@@ -3,12 +3,19 @@
 #include <cmath>
 #include <cstdint>
 
-void Simulator::print_hierarchy_setup(Cache dataCache, Cache L2cache) {
+void Simulator::print_hierarchy_setup(Cache dataCache, Cache L2cache, PageTable pageTable, TLB tlb) {
+  if (useTLB) {
+    tlb.printTLBInfo();
+  } std::cout << std::endl;
+  if (useVA) {
+    pageTable.printPTAttributes();
+  } std::cout << std::endl;
   dataCache.printCacheProperties();
+  std::cout << std::endl;
   if (useL2) {
     std::cout << std::endl;
     L2cache.printCacheProperties();
-  }
+  }std::cout << std::endl;
 }
 
 uint32_t hexToUint32(const std::string hexString) {
@@ -45,11 +52,10 @@ void processInstructions(TraceReciever instructions, Cache dataCache) {
   }
 }
 
-Simulator::Simulator(Cache dataCache, Cache L2Cache, TraceReciever instructions, 
-bool useVirtualAddresses, bool useTLB, bool useL2Cache) {
+Simulator::Simulator(Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb, TraceReciever instructions, bool useVirtualAddresses, bool useTLB, bool useL2Cache) {
   this->useVA = useVirtualAddresses;
   this->useTLB = useTLB;
   this->useL2 = useL2Cache;
-  Simulator::print_hierarchy_setup(dataCache, L2Cache);
+  Simulator::print_hierarchy_setup(dataCache, L2Cache, pageTable, tlb);
   processInstructions(instructions, dataCache);
 }

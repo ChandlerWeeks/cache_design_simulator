@@ -19,6 +19,7 @@ class CacheLine {
     void setDirtyBit();
     uint64_t getTimestamp();
     bool isValid();
+    bool isDirty();
 };
 
 class Cache {
@@ -45,7 +46,7 @@ class Cache {
   public:
     Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeThrough, std::string type);
     bool initializeCacheStructure();
-    bool cacheRead(uint32_t address);
+    bool cacheRead(uint32_t address, Cache *nextLevel);
     void printCacheProperties();
-    bool cacheWrite(uint32_t address);
+    bool cacheWrite(uint32_t address, Cache *nextLevel);
 };

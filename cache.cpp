@@ -11,7 +11,7 @@ Cache::Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeTh
 
 void Cache::determineCacheProperties() {
   cacheSize = numSets * setSize * lineSize;
-  blockOffsetSize = log2(cacheSize);
+  blockOffsetSize = log2(lineSize);
   indexSize = log2(numSets);
   tagSize = 32 - indexSize - blockOffsetSize;
 }
@@ -37,7 +37,6 @@ bool Cache::initializeCacheStructure() {
   for (int i=0; i < numSets; ++i) {
     cache[i].resize(setSize);
   }
-  std::cout << "cache size is " << numSets << " x " << setSize << " and cache size is " << cacheSize << std::endl;
   return 1;
 }
 
@@ -50,7 +49,7 @@ void Cache::extract_address_properties(uint32_t address, uint32_t* offset, uint3
   *tag = address >> (blockOffsetSize + indexSize);
 }
 
-bool Cache::cacheRead(uint32_t address) {
+bool Cache::cacheRead(uint32_t address, Cache *nextLevel) {
     // cache breakdown
     uint32_t offset;
     uint32_t index;
@@ -79,18 +78,24 @@ bool Cache::cacheRead(uint32_t address) {
     // handle the cache miss
     CacheLine* oldest = &set[0];
     for (CacheLine line : set) {
-      if (oldest->getTimestamp() > line.getTimestamp()) {
-        std::cout << "" << std::endl;
+      if (line.getTimestamp() < oldest->getTimestamp()) {
+        std::cout << "oldest found" << std::endl;
         oldest = &line;
       }
     }
-    //TODO: handle a dirty replacement
+    // handle a dirty replacement
+    if (oldest->isDirty()) {
+      if (nextLevel != nullptr) {
+        nextLevel->cacheWrite(address, nullptr);
+      }
+    }
+    // TODO: Write down
     oldest->replaceCache(tag, false);
     oldest->setTimestamp(timestamp);
     return true;
 }
 
-bool Cache::cacheWrite(uint32_t address) {
+bool Cache::cacheWrite(uint32_t address, Cache *nextLevel) {
     // cache breakdown
     uint32_t offset;
     uint32_t index;
@@ -119,9 +124,9 @@ bool Cache::cacheWrite(uint32_t address) {
 
     std::cout << "MISS" << std::endl;
     if (writeThrough) {
-      return true;
+      return true; // just write to memory not cache on a no write allocate miss
     }
-    // handle the cache miss
+    // write down on a cache miss
     CacheLine* oldest = &set[0];
     for (CacheLine line : set) {
       if (oldest->getTimestamp() > line.getTimestamp()) {
@@ -130,4 +135,14 @@ bool Cache::cacheWrite(uint32_t address) {
         oldest = &line;
       }
     }
+        // handle a dirty replacement
+    if (oldest->isDirty()) {
+      if (nextLevel != nullptr) {
+        nextLevel->cacheWrite(address, nullptr);
+      }
+    }
+    //TODO: Write down
+    oldest->replaceCache(tag, false);
+    oldest->setTimestamp(timestamp);
+    return true;
 }

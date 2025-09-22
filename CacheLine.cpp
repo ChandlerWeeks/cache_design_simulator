@@ -33,3 +33,7 @@ void CacheLine::setDirtyBit() {
 uint64_t CacheLine::getTimestamp() {
   return timestamp;
 }
+
+bool CacheLine::isDirty() {
+  return this->dirty;
+}
