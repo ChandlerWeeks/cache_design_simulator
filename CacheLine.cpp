@@ -30,6 +30,10 @@ void CacheLine::setDirtyBit() {
   this->dirty = true;
 }
 
+void CacheLine::invalidate() {
+  this->valid = false;
+}
+
 uint64_t CacheLine::getTimestamp() {
   return timestamp;
 }

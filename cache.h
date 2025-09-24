@@ -17,6 +17,7 @@ class CacheLine {
     bool replaceCache(uint32_t tag, bool dirty);
     void setTimestamp(uint64_t timestamp);
     void setDirtyBit();
+    void invalidate();
     uint64_t getTimestamp();
     bool isValid();
     bool isDirty();
@@ -38,15 +39,27 @@ class Cache {
     void determineCacheProperties();
     void extract_address_properties(uint32_t address, uint32_t* offset, uint32_t* index, uint32_t* tag);
 
+    // for replacement 
+    Cache* nextLevel;
+    Cache* parentCache;
+
     // Cache structure
     std::vector<std::vector<CacheLine>> cache; // dimension 1 is the set, dimension 2 is the block
 
     // LRU related
-    uint64_t timestamp = 0;
+    uint64_t timestamp;
   public:
     Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeThrough, std::string type);
+    
+    void setNextLevel(Cache* nextLevel);
+    void setParent(Cache* parent);
+    uint32_t getLineSize();
+    bool invalidateAddress(uint32_t address);
+    
     bool initializeCacheStructure();
-    bool cacheRead(uint32_t address, Cache *nextLevel);
+    bool cacheRead(uint32_t address);
+    bool cacheWrite(uint32_t address);
     void printCacheProperties();
-    bool cacheWrite(uint32_t address, Cache *nextLevel);
+
+    void invalidateParents(uint32_t address);
 };

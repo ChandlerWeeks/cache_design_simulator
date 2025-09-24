@@ -47,7 +47,7 @@ void processInstructions(TraceReciever instructions, Cache dataCache) {
       dataCache.cacheRead(address);
     } else { // write
       uint32_t address = processAddress(instructions.getRecentInstruction()[1], dataCache);
-      // dataCache.cacheWrite(address);
+      dataCache.cacheWrite(address);
     }
   }
 }
