@@ -8,6 +8,11 @@ PageTable::PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint
   this->bitsPerPageOffset = log2(pageSize);
 }
 
+void PageTable::initializePageTable() {
+  // because there can be different amounts of vp to pp create it pte manually
+  entries.resize(virtualPageCount);
+}
+
 void PageTable::printPTAttributes() {
   std::cout << "Number of virtual pages is " << this->virtualPageCount << ".\n";
   std::cout << "Number of physical pages is " << this->physicalPageCount << ".\n";

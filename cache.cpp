@@ -1,5 +1,7 @@
 #include "cache.h"
 
+// TODO: ALWAYS TO NO WRITE ALLOCATE
+
 Cache::Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeThrough, std::string type) {
   this->numSets = numSets;
   this->setSize = setSize;
@@ -145,6 +147,8 @@ bool Cache::cacheWrite(uint32_t address) {
       }
     }
 
+    // TODO: For whatever godforsaken reason, i didnt read shit right, fix this
+    // ONLY DO NO WRITE ALLOCATE
     // write through no write allocate
     if (writeThrough) {
       return true; // just write to memory
@@ -187,6 +191,7 @@ bool Cache::invalidateAddress(uint32_t address) {
   return false; // did not successfully invalidate the address
 }
 
+// TODO: this needs to ensure inclusivity, there should be a block in l1 than points to this one, if it changes invalidate the **others**
 void Cache::invalidateParents(uint32_t address) {
   if (parentCache == nullptr) {
     return;
