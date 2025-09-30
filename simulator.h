@@ -14,4 +14,5 @@ class Simulator {
     bool useVA;
     bool useTLB;
     void print_hierarchy_setup(Cache dataCache, Cache L2cache, PageTable pageTable, TLB tlb);
+    void print_state_header();
 };

@@ -33,7 +33,8 @@ void printBits(uint32_t n) {
   std::cout << std::endl;
 }
 
-uint32_t processAddress(std::string hexString, Cache dataCache) {
+// hex address to virtual/physical 
+uint32_t processAddress(std::string hexString) {
   std::cout << hexString << std::endl;
   uint32_t address = hexToUint32(hexString);
   printBits(address);
@@ -43,10 +44,10 @@ uint32_t processAddress(std::string hexString, Cache dataCache) {
 void processInstructions(TraceReciever instructions, Cache dataCache) {
   while(!instructions.isQueueEmpty()) {
     if (instructions.isNextRead()) {
-      uint32_t address = processAddress(instructions.getRecentInstruction()[1], dataCache);
+      uint32_t address = processAddress(instructions.getRecentInstruction()[1]);
       dataCache.cacheRead(address);
     } else { // write
-      uint32_t address = processAddress(instructions.getRecentInstruction()[1], dataCache);
+      uint32_t address = processAddress(instructions.getRecentInstruction()[1]);
       dataCache.cacheWrite(address);
     }
   }

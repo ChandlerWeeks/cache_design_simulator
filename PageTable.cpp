@@ -10,7 +10,15 @@ PageTable::PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint
 
 void PageTable::initializePageTable() {
   // because there can be different amounts of vp to pp create it pte manually
-  entries.resize(virtualPageCount);
+  for (int i = 0; i < virtualPageCount; i++) {
+    PageTableEntry page(i, 0, false, false);
+    entries.push_back(page);
+  }
+}
+
+uint32_t PageTable::translateAddress(uint32_t virtualAddress) {
+  uint32_t vpn = virtualAddress >> bitsPerPageOffset;
+  uint32_t offset = virtualAddress * (pageSize - 1);
 }
 
 void PageTable::printPTAttributes() {

@@ -7,7 +7,7 @@ PageTableEntry::PageTableEntry(uint32_t index, uint32_t timestamp, bool valid, b
   this->dirty = dirty;
 }
 
-uint32_t PageTableEntry::getIndex() const {
+uint32_t PageTableEntry::getIndex() {
   return index;
 }
 
@@ -15,7 +15,7 @@ void PageTableEntry::setIndex(uint32_t index) {
   this->index = index;
 }
 
-uint32_t PageTableEntry::getTimestamp() const {
+uint32_t PageTableEntry::getTimestamp() {
   return timestamp;
 }
 
@@ -23,7 +23,7 @@ void PageTableEntry::setTimestamp(uint32_t timestamp) {
   this->timestamp = timestamp;
 }
 
-bool PageTableEntry::isValid() const {
+bool PageTableEntry::isValid() {
   return valid;
 }
 
@@ -31,7 +31,7 @@ void PageTableEntry::setValid(bool valid) {
   this->valid = valid;
 }
 
-bool PageTableEntry::isDirty() const {
+bool PageTableEntry::isDirty() {
   return dirty;
 }
 
