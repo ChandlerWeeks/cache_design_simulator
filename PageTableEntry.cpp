@@ -12,6 +12,10 @@ uint32_t PageTableEntry::getPFN() {
   return PFN;
 }
 
+void PageTableEntry::setPFN(uint32_t PFN) {
+  this->PFN = PFN;
+}
+
 uint32_t PageTableEntry::getIndex() {
   return index;
 }

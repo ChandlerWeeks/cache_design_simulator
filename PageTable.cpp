@@ -14,6 +14,8 @@ PageTable::PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint
   this->bitsPerPageOffset = log2(pageSize);
   this->pfnUsedCount = 0;
   this->timestamp = 0;
+
+  initializePageTable();
 }
 
 void PageTable::initializePageTable() {
@@ -26,34 +28,33 @@ void PageTable::initializePageTable() {
 
 uint32_t PageTable::translateAddress(uint32_t virtualAddress) {
   uint32_t vpn = virtualAddress >> bitsPerPageOffset;
-  uint32_t offsetMask = (1 << bitsPerPageOffset) - 1;
-  uint32_t offset = virtualAddress & offsetMask;
+  std::cout << "VPN calculated as " << vpn << std::endl;
   PageTableEntry* entry = nullptr;
 
   // determine if VPN is mapped
-  for (long unsigned int i = 0; i < entries.size(); i++) { // for whatever god forsaken reason, it didn't like "int"
-    if (entries[i].getIndex() == vpn) {
-      timestamp++;
-      entry = &entries[i];
-
-      if (!entry->isValid()) {
-        handleSoftPageFault(entry, virtualAddress);
-      } if (!entry->isDirty()) {
-        // page table is dirty reference the disk (change counter)
-      }
-      // yay, we got it and its not being picky <3
-      entry->setTimestamp(timestamp);
+  std::cout << "address size " << entries.size() << std::endl;
+  if (vpn < entries.size()) {
+    entry = &entries[vpn];
+    if (entry->isValid()) {
+      entry->setTimestamp(timestamp++);
+      return (entry->getPFN() << bitsPerPageOffset) | (virtualAddress & (pageSize - 1));
+    } else {
+      // page table miss
+      std::cout << "hierarchy: PT miss for vpn " << addressToHex(vpn) << std::endl;
+      handleSoftPageFault(entry, virtualAddress);
+      entry->setValid(true);
+      entry->setTimestamp(timestamp++);
+      return (entry->getPFN() << bitsPerPageOffset) | (virtualAddress & (pageSize - 1));
     }
   }
 
   // hard page fault, shits fucked...
-  std::cout << std::endl << "hierarchy: virtual address " << addressToHex(virtualAddress) << " is too large" << std::endl;
-  throw std::runtime_error("skibidi ohio rizz");
+  throw std::runtime_error("hierarchy: vpn " + addressToHex(vpn) + " is too large");
 }
 
 void PageTable::handleSoftPageFault(PageTableEntry* entry, uint32_t virtualAddress) {
   if (pfnUsedCount < physicalPageCount) {
-
+    entry->setPFN(pfnUsedCount++);
   } else {
     evictLRU(virtualAddress);
   }

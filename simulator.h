@@ -16,5 +16,5 @@ class Simulator {
     void print_hierarchy_setup(Cache dataCache, Cache L2cache, PageTable pageTable, TLB tlb);
     void printHeader();
     void printOutputRow();
-    void processInstructions(TraceReciever instructions, Cache dataCache);
+    void processInstructions(TraceReciever instructions, Cache dataCache, PageTable pageTable);
 };

@@ -24,6 +24,7 @@ class PageTableEntry {
     bool isDirty();
     void setDirty(bool dirty);
     uint32_t getPFN();
+    void setPFN(uint32_t PFN);
 };
 
 class PageTable {

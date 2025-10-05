@@ -86,8 +86,9 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
     if (useTLB) {
       // TODO: implement that whole TLB thing
     }
+    
 
-    if (useVA && (!useTLB || 0==0)) {
+    if (useVA && (!useTLB || 0==0)) { // eventually put tag for tlb hit
       physicalAddress = pageTable.translateAddress(virtualAddress);
     } else {
       physicalAddress = virtualAddress;
@@ -115,5 +116,5 @@ Simulator::Simulator(Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tl
   Simulator::print_hierarchy_setup(dataCache, L2Cache, pageTable, tlb);
   std::cout << std::endl;
   printHeader();
-  processInstructions(instructions, dataCache);
+  processInstructions(instructions, dataCache, pageTable);
 }
