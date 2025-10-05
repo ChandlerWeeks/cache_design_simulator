@@ -3,7 +3,7 @@
 #include <fstream>
 
 ConfigRetrieval::ConfigRetrieval() {
-  config_dir = "./memhier/test_trace.config";
+  config_dir = "./memhier/trace.config";
 }
 
 std::vector<std::string> ConfigRetrieval::get_configuration() {

@@ -3,7 +3,7 @@
 #include <fstream>
 
 TraceReciever::TraceReciever() {
-  tracePath = "./memhier/test_trace.dat";
+  tracePath = "./memhier/trace.dat";
 }
 
 void TraceReciever::getInstructions() {

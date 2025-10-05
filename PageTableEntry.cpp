@@ -1,10 +1,15 @@
 #include "pageTable.h"
 
-PageTableEntry::PageTableEntry(uint32_t index, uint32_t timestamp, bool valid, bool dirty) {
+PageTableEntry::PageTableEntry(uint32_t index, uint32_t PFN, uint32_t timestamp, bool valid, bool dirty) {
   this->index = index;
   this->timestamp = timestamp;
   this->valid = valid;
   this->dirty = dirty;
+  this->PFN = PFN;
+}
+
+uint32_t PageTableEntry::getPFN() {
+  return PFN;
 }
 
 uint32_t PageTableEntry::getIndex() {

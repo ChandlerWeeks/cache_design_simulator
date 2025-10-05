@@ -8,6 +8,7 @@ Cache::Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeTh
   this->lineSize = lineSize;
   this->writeThrough = writeThrough;
   this->timestamp = 0;
+  this->cacheType = type;
   this->nextLevel = nullptr;
   this->parentCache = nullptr;
   determineCacheProperties();
@@ -38,10 +39,10 @@ void Cache::printCacheProperties() {
   std::cout << cacheType << "Cache contains " << numSets << " sets.\n";
   std::cout << "Each set contains " << setSize << " entries.\n";
   std::cout << "Each line is " << lineSize << " bytes.\n";
-  if (writeThrough) {
-    std::cout << "The Cache uses a write-through and write no-write allocate policy\n";
+  if (!writeThrough) {
+    std::cout << "The Cache uses a write-allocate and write-back policy\n";
   } else {
-    std::cout << "The Cache uses a write-back and write allocate policy\n";
+    std::cout << "The Cache uses a no-write-allocate and write-through policy\n";
   }
   std::cout << "Number of bits used for the index is " << indexSize << ".\n";
   std::cout << "Number of bits used for the offset is " << blockOffsetSize << ".\n";
@@ -52,7 +53,7 @@ bool Cache::initializeCacheStructure() {
   cache.resize(numSets); // dimension 1
 
   // set each block size;
-  for (int i=0; i < numSets; ++i) {
+  for (uint32_t i=0; i < numSets; ++i) {
     cache[i].resize(setSize);
   }
   return 1;
