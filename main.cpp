@@ -33,7 +33,7 @@ Cache init_data_cache(ConfigRetrieval configRetriever) {
         static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Set size"))),
         static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Line size"))),
         configRetriever.get_config_mapping().at("Data Cache Write through/no write allocate") == " y",
-        "Data"
+        "D-"
     };
   return dataCache;
 }

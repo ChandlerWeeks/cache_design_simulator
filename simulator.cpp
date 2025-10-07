@@ -74,25 +74,36 @@ void Simulator::printOutputRow(
   uint32_t DCTag, uint32_t DCIndex, short DCRes,
   uint32_t L2Tag, uint32_t L2Index, short L2Res)
 {
-  printf("%08x %6x %4x %6x %3x %-4s %-4s %4x %6x %3x %-4s",
-         address,
-         VPN,
-         pageOffset,
-         TLBTag,
-         TLBIndex,
-         hitMissStr(TLBRes).c_str(),
-         hitMissStr(PTRes).c_str(),
-         PFN,
-         DCTag,
-         DCIndex,
-         hitMissStr(DCRes).c_str());
-  if (DCRes == 1) {
-    printf(" %6s %3s %-4s\n", "", "", "");
+
+  printf("%08x", address);
+  if (useVA) {
+    printf(" %6x %4x", VPN, pageOffset);
+  }
+
+  // TLB columns only if TLB is enabled
+  if (useTLB) {
+    printf(" %6x %3x %-4s", TLBTag, TLBIndex, hitMissStr(TLBRes).c_str());
+  }
+
+  // PT columns only if using VA
+  if (useVA) {
+    printf(" %-4s %4x", hitMissStr(PTRes).c_str(), PFN);
+  }
+
+  // DC is always on
+  printf(" %6x %3x %-4s", DCTag, DCIndex, hitMissStr(DCRes).c_str());
+
+  // L2 columns only if L2 is enabled
+  if (useL2) {
+    if (DCRes == 1) {
+      // blank on DC hit
+      printf(" %6s %3s %-4s\n", "", "", "");
+    } else {
+      printf(" %6x %3x %-4s\n", L2Tag, L2Index, hitMissStr(L2Res).c_str());
+    }
   } else {
-    printf(" %6x %3x %-4s\n",
-           L2Tag,
-           L2Index,
-           hitMissStr(L2Res).c_str());
+    // no L2 → finish the line
+    printf("\n");
   }
 }
 
@@ -115,20 +126,28 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
 
   // use a short for a boolean with *3* whole states
   short TLBRes = -1, PTRes = -1, DCRes = -1, L2Res = -1;
-
+  bool PFNEvicted = false;
 
   while(!instructions.isQueueEmpty()) {
     // get the next instruction
     bool isRead = instructions.isNextRead();
     uint32_t virtualAddress = processAddress(instructions.getRecentInstruction()[1]);
-    
     uint32_t physicalAddress;
+    Cache* lowestCache = nullptr;
+    if (useL2) {
+      lowestCache = &L2Cache;
+      L2Cache.setParent(&dataCache);
+      dataCache.setNextLevel(&L2Cache);
+    } else {
+      lowestCache = &dataCache;
+    }
 
     address = virtualAddress;
     VPN = virtualAddress >> pageTable.getBitsPerPageOffset();
     pageOffset = virtualAddress & ( (1 << pageTable.getBitsPerPageOffset()) - 1);
     if (useVA && useTLB) {
       pageTable.setTLB(&tlb);
+      pageTable.setLowestCache(lowestCache);
     }
 
     if (useTLB) {
@@ -155,7 +174,7 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
     if (isRead) {
       dataCache.cacheRead(physicalAddress, DCIndex, DCTag, DCRes);
     } else { // write
-      dataCache.cacheWrite(physicalAddress);
+      dataCache.cacheWrite(physicalAddress, DCIndex, DCTag, DCRes);
       if (useVA) {
         pageTable.markAddressDirty(virtualAddress);
       }
@@ -166,7 +185,7 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
         if (isRead) {
           L2Cache.cacheRead(physicalAddress, L2Index, L2Tag, L2Res);
         } else { // write
-          L2Cache.cacheWrite(physicalAddress);
+          L2Cache.cacheWrite(physicalAddress, L2Index, L2Tag, L2Res);
         }
       }
     }

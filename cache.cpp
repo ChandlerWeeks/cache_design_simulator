@@ -47,14 +47,13 @@ void Cache::printCacheProperties() {
 }
 
 // initializes the cache with invalid bits
-bool Cache::initializeCacheStructure() {
+void Cache::initializeCacheStructure() {
   cache.resize(numSets); // dimension 1
 
   // set each block size;
   for (uint32_t i=0; i < numSets; ++i) {
     cache[i].resize(setSize);
   }
-  return 1;
 }
 
 void Cache::extract_address_properties(uint32_t address, uint32_t* offset, uint32_t* index, uint32_t* tag) {
@@ -66,114 +65,108 @@ void Cache::extract_address_properties(uint32_t address, uint32_t* offset, uint3
   *tag = address >> (blockOffsetSize + indexSize);
 }
 
-bool Cache::cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res) {
-    // cache breakdown
-    uint32_t offset;
-    uint32_t index;
-    uint32_t tag;
+void Cache::cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res) {
+  // cache breakdown
+  uint32_t offset;
+  uint32_t index;
+  uint32_t tag;
 
-    extract_address_properties(address, &offset, &index, &tag);
-    indexOut = index;
-    tagOut = tag;
-
-    timestamp++;
-
-    // find the cache set, check each block in the set
-    std::vector<CacheLine>& set = cache[index];
-    for (CacheLine &line : set) {
-      if (line.isCacheHit(tag) && line.isValid()) {
-        line.setTimestamp(timestamp);
-        res = true;
-        return true; // successful run
-      }
+  extract_address_properties(address, &offset, &index, &tag);
+  indexOut = index;
+  tagOut = tag;
+  // find the cache set, check each block in the set
+  std::vector<CacheLine>& set = cache[index];
+  for (CacheLine &line : set) {
+    if (line.isCacheHit(tag) && line.isValid()) {
+      line.setTimestamp(timestamp++);
+      res = true;
+      return;
     }
-
-    // handle the cache miss
-    // Find the cahce block to evict using LRU or whatever the fuck im supposed to do
-    res = false;
-    CacheLine* oldest = &set[0];
-    for (CacheLine &line : set) {
-      // just put it in an invalid line if we find one
-      if (!line.isValid()) {
-        oldest = &line;
-        break;
-      }
-      if (line.getTimestamp() < oldest->getTimestamp()) {
-        oldest = &line;
-      }
+  }
+  // handle the cache miss
+  // Find the cahce block to evict using LRU or whatever the fuck im supposed to do
+  res = false;
+  CacheLine* oldest = &set[0];
+  for (CacheLine &line : set) {
+    if (line.getTimestamp() < oldest->getTimestamp()) {
+      oldest = &line;
     }
+  }
 
-    // handle a dirty replacement
-    if (oldest->isDirty() && oldest->isValid()) {
-      invalidateParents(address);
-      if (nextLevel != nullptr) {
-        nextLevel->cacheWrite(address);
-      }
+  // handle a dirty replacement
+  if (oldest->isDirty() && oldest->isValid()) {
+    invalidateParents(address);
+    if (nextLevel != nullptr) {
+      uint32_t dummy1, dummy2;
+      short dummy3;
+      nextLevel->cacheWrite(address, dummy1, dummy2, dummy3);
     }
-
-    oldest->replaceCache(tag, false);
-    oldest->setTimestamp(timestamp);
-    return true;
+  }
+  oldest->replaceCache(tag, false);
+  oldest->setTimestamp(timestamp);
 }
 
-bool Cache::cacheWrite(uint32_t address) {
-    // cache breakdown
-    uint32_t offset;
-    uint32_t index;
-    uint32_t tag;
+void Cache::cacheWrite(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res) {
+  // cache breakdown
+  uint32_t offset;
+  uint32_t index;
+  uint32_t tag;
 
-    extract_address_properties(address, &offset, &index, &tag);
-
-    timestamp++;
-    
-    // find the cache set, check each block in the set
-    std::vector<CacheLine>& set = cache[index];
+  extract_address_properties(address, &offset, &index, &tag);
+  indexOut = index;
+  tagOut = tag;
+  
+  // find the cache set, check each block in the set
+  std::vector<CacheLine>& set = cache[index];
+  for (CacheLine &line : set) {
+    if (line.isCacheHit(tag) && line.isValid()) {
+      res = true;
+      // WRITE THROUGH: write down to each tier of cache
+      line.setTimestamp(timestamp++);
+      if (writeThrough) {
+        if (nextLevel != nullptr) {
+          uint32_t dummy1, dummy2;
+          short dummy3;
+          nextLevel->cacheWrite(address, dummy1, dummy2, dummy3);
+          return;
+        }
+      } 
+      // Write Back policy: dont write down to each tier, dirty bit
+      else { 
+        line.setDirtyBit();
+        return;
+      }
+    }
+  }
+  
+  // ONLY DO NO WRITE ALLOCATE
+  // write through no write allocate
+  res = false;
+  if (writeThrough) {
+    // just write to memory??
+  }
+  // write back write allocate, fetch memory into cache, then perform the cache write
+  else {
+    uint32_t index, tag;
+    short res;
+    cacheRead(address, index, tag, res); // fetch the address from memory
+    // get the cache block
     for (CacheLine &line : set) {
-      if (line.isCacheHit(tag) && line.isValid()) {
-        // WRITE THROUGH: write down to each tier of cache
+      if (line.isValid() && line.isCacheHit(tag)) {
         line.setTimestamp(timestamp);
-        if (writeThrough) {
-          if (nextLevel != nullptr) {
-            nextLevel->cacheWrite(address);
-          }
-          return true; // successful run
-        } 
-        // Write Back policy: dont write down to each tier, dirty bit
-        else { 
-          line.setDirtyBit();
-          return true; // successful run
+        if (nextLevel != nullptr) {
+          uint32_t dummy1, dummy2;
+          short dummy3;
+          nextLevel->cacheWrite(address, dummy1, dummy2, dummy3);
         }
+        break;
       }
     }
-
-    // TODO: For whatever godforsaken reason, i didnt read shit right, fix this
-    // ONLY DO NO WRITE ALLOCATE
-    // write through no write allocate
-    if (writeThrough) {
-      return true; // just write to memory
-    }
-    // write back write allocate, fetch memory into cache, then perform the cache write
-    else {
-      uint32_t index, tag;
-      short res;
-      cacheRead(address, index, tag, res); // fetch the address from memory
-      // get the cache block
-      for (CacheLine &line : set) {
-        if (line.isValid() && line.isCacheHit(tag)) {
-          line.setTimestamp(timestamp);
-          if (nextLevel != nullptr) {
-            nextLevel->cacheWrite(address);
-          }
-          break;
-        }
-      }
-
-    }
-    return true;
+  }
 }
 
 // extract the address from cache and invalidate it
-bool Cache::invalidateAddress(uint32_t address) {
+void Cache::invalidateAddress(uint32_t address) {
   uint32_t offset;
   uint32_t index;
   uint32_t tag;
@@ -181,13 +174,14 @@ bool Cache::invalidateAddress(uint32_t address) {
   extract_address_properties(address, &offset, &index, &tag);
 
   std::vector<CacheLine>& set = cache[index];
-    for (CacheLine &line : set) {
-      if (line.isCacheHit(tag)) {
-        line.invalidate();
-        return true; // successful run
+  for (CacheLine &line : set) {
+    if (line.isCacheHit(tag)) {
+      line.invalidate();
+      if (parentCache != nullptr) {
+        parentCache->invalidateAddress(address);
       }
     }
-  return false; // did not successfully invalidate the address
+  }
 }
 
 // TODO: this needs to ensure inclusivity, there should be a block in l1 than points to this one, if it changes invalidate the **others**

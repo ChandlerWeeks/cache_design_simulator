@@ -5,6 +5,7 @@
 #include <vector>
 #include <sstream>
 #include "TLB.h"
+#include "cache.h"
 
 class PageTableEntry {
   private:
@@ -41,6 +42,7 @@ class PageTable {
     uint32_t evictLRU(uint32_t virtualAddress);
     uint32_t findLRU();
     TLB* tlb;
+    Cache* lowestCache; // the lowest cache in the hierarchy, used for fetching on a page fault
     void handleSoftPageFault(PageTableEntry* entry, uint32_t virtualAddress);
   public:
     PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint32_t pageSize);
@@ -52,4 +54,5 @@ class PageTable {
     void markAddressDirty(uint32_t virtualAddress); // TODO: call this on a write
     void incrementTimestamp(uint32_t vpn);
     void setTLB(TLB* tlb);
+    void setLowestCache(Cache* cache);
 };

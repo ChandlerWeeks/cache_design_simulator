@@ -23,6 +23,10 @@ void PageTable::setTLB(TLB* tlb) {
   this->tlb = tlb;
 }
 
+void PageTable::setLowestCache(Cache* cache) {
+  this->lowestCache = cache;
+}
+
 void PageTable::initializePageTable() {
   // because there can be different amounts of vp to pp create it pte manually
   for (uint32_t i = 0; i < virtualPageCount; i++) {
@@ -102,6 +106,15 @@ uint32_t PageTable::evictLRU(uint32_t virtualAddress) {
   evictedEntry->setValid(false);
   if (tlb != nullptr) {
     tlb->invalidateByPFN(freedPFN);
+  }
+  // invalidate all cache lines belonging to the evicted PFN, probably not efficent but it is what it is
+  {
+    uint32_t pageSizeBytes = 1u << bitsPerPageOffset;
+    uint32_t lineSizeBytes = lowestCache->getLineSize();
+    uint32_t basePhys = freedPFN << bitsPerPageOffset;
+    for (uint32_t off = 0; off < pageSizeBytes; off += lineSizeBytes) {
+      lowestCache->invalidateAddress(basePhys + off);
+    }
   }
   return freedPFN;
 }

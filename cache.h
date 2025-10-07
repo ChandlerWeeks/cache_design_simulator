@@ -54,12 +54,13 @@ class Cache {
     void setNextLevel(Cache* nextLevel);
     void setParent(Cache* parent);
     uint32_t getLineSize();
-    bool invalidateAddress(uint32_t address);
+    void invalidateAddress(uint32_t address);
     
-    bool initializeCacheStructure();
-    bool cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
-    bool cacheWrite(uint32_t address);
+    void initializeCacheStructure();
+    void cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
+    void cacheWrite(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
     void printCacheProperties();
 
     void invalidateParents(uint32_t address);
+    void invalidateLineFromPFN(uint32_t PFN);
 };

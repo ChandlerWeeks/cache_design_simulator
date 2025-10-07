@@ -4,7 +4,7 @@ CacheLine::CacheLine() {
   this->tag = 0;
   this->dirty = false;
   this->valid = false;
-  this->timestamp = 0;
+  this->timestamp = -1;
 }
 
 bool CacheLine::isCacheHit(uint32_t tag) {
