@@ -1,20 +1,533 @@
-read at 00000c84
+read at 00000e81
 
-read at 0000081c
+read at 00000024
 
-read at 0000014c
+read at 00000474
 
-read at 00000c84
+read at 00000398
 
-read at 00000400
+read at 000006aa
+invalidating DC line with tag 2 and index 0 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 8 since phys page 0 is being replaced
 
-read at 00000148
+read at 000004d2
 
-read at 00000144
+read at 00000259
+invalidating L2 line with tag 1 and index 2 since phys page 1 is being replaced
 
-read at 00000c80
+read at 00000106
+invalidating dtlb entry 1 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 9 since phys page 3 is being replaced
 
-read at 00000008
+read at 00000ca2
+invalidating DC line with tag 2 and index 2 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index a since phys page 0 is being replaced
+
+read at 000008ea
+invalidating DC line with tag 9 and index 3 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 7 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index d since phys page 2 is being replaced
+
+read at 00000f3d
+invalidating DC line with tag 5 and index 1 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 5 since phys page 1 is being replaced
+
+read at 00000b4f
+invalidating DC line with tag c and index 0 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 0 since phys page 3 is being replaced
+
+read at 00000651
+invalidating L2 line with tag 0 and index a since phys page 0 is being replaced
+
+read at 000003fd
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating DC line with tag b and index 2 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index e since phys page 2 is being replaced
+
+read at 0000044a
+invalidating L2 line with tag 1 and index 3 since phys page 1 is being replaced
+
+read at 0000071e
+invalidating L2 line with tag 3 and index 4 since phys page 3 is being replaced
+
+read at 00000ffc
+invalidating dtlb entry 0 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 5 since phys page 0 is being replaced
+
+read at 00000af6
+invalidating L2 line with tag 2 and index f since phys page 2 is being replaced
+
+read at 00000a59
+
+read at 00000f85
+
+read at 0000097b
+invalidating dtlb entry 0 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 4 since phys page 1 is being replaced
+
+read at 0000098f
+
+read at 000005e8
+invalidating L2 line with tag 3 and index 1 since phys page 3 is being replaced
+
+read at 00000576
+
+read at 0000049d
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating DC line with tag 9 and index 1 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 5 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index f since phys page 2 is being replaced
+
+read at 0000099d
+
+read at 00000ab8
+invalidating L2 line with tag 0 and index 8 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index f since phys page 0 is being replaced
+
+read at 00000745
+invalidating DC line with tag f and index 2 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 7 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index e since phys page 3 is being replaced
+
+read at 00000dd1
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 9 since phys page 2 is being replaced
+
+read at 0000015a
+invalidating L2 line with tag 1 and index 7 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 8 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 9 since phys page 1 is being replaced
+
+read at 00000e20
+invalidating dtlb entry 0 since phys page 0 is being replaced
+invalidating DC line with tag 2 and index 3 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index b since phys page 0 is being replaced
+
+read at 00000fb5
+invalidating DC line with tag d and index 0 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 4 since phys page 3 is being replaced
+
+read at 0000049a
+invalidating L2 line with tag 2 and index d since phys page 2 is being replaced
+
+read at 00000398
+invalidating L2 line with tag 1 and index 5 since phys page 1 is being replaced
+
+read at 000007e2
+invalidating dtlb entry 0 since phys page 0 is being replaced
+invalidating DC line with tag 0 and index 2 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 2 since phys page 0 is being replaced
+
+read at 00000c9e
+invalidating DC line with tag e and index 3 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index b since phys page 3 is being replaced
+
+read at 000005f5
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 9 since phys page 2 is being replaced
+
+read at 000007e2
+
+read at 000003e3
+
+read at 000005cc
+
+read at 00000d46
+invalidating dtlb entry 0 since phys page 3 is being replaced
+invalidating DC line with tag e and index 1 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 9 since phys page 3 is being replaced
+
+read at 00000fea
+invalidating L2 line with tag 0 and index e since phys page 0 is being replaced
+
+read at 000001e9
+invalidating L2 line with tag 1 and index 9 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index e since phys page 1 is being replaced
+
+read at 000003fc
+invalidating DC line with tag b and index 3 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index c since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index f since phys page 2 is being replaced
+
+read at 0000086f
+invalidating DC line with tag d and index 0 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 4 since phys page 3 is being replaced
+
+read at 00000f71
+
+read at 00000a66
+invalidating L2 line with tag 1 and index e since phys page 1 is being replaced
+
+read at 00000d5c
+invalidating L2 line with tag 2 and index f since phys page 2 is being replaced
+
+read at 000003b9
+invalidating dtlb entry 0 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 6 since phys page 3 is being replaced
+
+read at 000009fa
+invalidating L2 line with tag 0 and index 7 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index e since phys page 0 is being replaced
+
+read at 00000773
+invalidating dtlb entry 0 since phys page 1 is being replaced
+invalidating DC line with tag 5 and index 2 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 6 since phys page 1 is being replaced
+
+read at 00000602
+invalidating DC line with tag 9 and index 1 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 5 since phys page 2 is being replaced
+
+read at 00000084
+invalidating L2 line with tag 3 and index b since phys page 3 is being replaced
+
+read at 000002a8
+invalidating dtlb entry 1 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index f since phys page 0 is being replaced
+
+read at 00000aea
+invalidating dtlb entry 1 since phys page 1 is being replaced
+invalidating DC line with tag 5 and index 3 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 7 since phys page 1 is being replaced
+
+read at 00000255
+
+read at 00000269
+
+read at 000005b0
+invalidating L2 line with tag 2 and index 0 since phys page 2 is being replaced
+
+read at 00000a9b
+
+read at 00000a9a
+
+read at 00000241
+
+read at 00000d5c
+invalidating L2 line with tag 3 and index 8 since phys page 3 is being replaced
+
+read at 0000081a
+invalidating dtlb entry 1 since phys page 2 is being replaced
+invalidating DC line with tag a and index 3 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index b since phys page 2 is being replaced
+
+read at 000006ed
+invalidating L2 line with tag 1 and index 9 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index e since phys page 1 is being replaced
+
+read at 00000106
+invalidating DC line with tag 1 and index 0 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 4 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 5 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 6 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index a since phys page 0 is being replaced
+
+read at 00000b5b
+invalidating L2 line with tag 3 and index 5 since phys page 3 is being replaced
+
+read at 00000210
+invalidating L2 line with tag 2 and index 1 since phys page 2 is being replaced
+
+read at 00000f27
+invalidating dtlb entry 0 since phys page 1 is being replaced
+invalidating DC line with tag 7 and index 2 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index e since phys page 1 is being replaced
+
+read at 00000c45
+invalidating DC line with tag 0 and index 0 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 0 since phys page 0 is being replaced
+
+read at 00000c38
+
+read at 00000bf1
+
+read at 000008cf
+invalidating DC line with tag 8 and index 1 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 1 since phys page 2 is being replaced
+
+read at 0000072d
+invalidating DC line with tag 4 and index 2 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 2 since phys page 1 is being replaced
+
+read at 00000b03
+
+read at 00000203
+invalidating L2 line with tag 0 and index 3 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 4 since phys page 0 is being replaced
+
+read at 00000daf
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index c since phys page 2 is being replaced
+
+read at 00000950
+invalidating L2 line with tag 1 and index 2 since phys page 1 is being replaced
+
+read at 00000078
+invalidating DC line with tag f and index 3 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 0 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 5 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index f since phys page 3 is being replaced
+
+read at 0000086b
+invalidating DC line with tag 0 and index 0 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 0 since phys page 0 is being replaced
+
+read at 00000e06
+invalidating dtlb entry 1 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index a since phys page 2 is being replaced
+
+read at 000006a5
+invalidating dtlb entry 1 since phys page 1 is being replaced
+invalidating DC line with tag 5 and index 1 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 5 since phys page 1 is being replaced
+
+read at 00000923
+invalidating DC line with tag d and index 3 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 7 since phys page 3 is being replaced
+
+read at 00000d6b
+invalidating L2 line with tag 0 and index 6 since phys page 0 is being replaced
+
+read at 00000745
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating DC line with tag 8 and index 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 0 since phys page 2 is being replaced
+
+read at 0000069a
+
+read at 000008f2
+invalidating L2 line with tag 3 and index 2 since phys page 3 is being replaced
+
+read at 00000567
+invalidating DC line with tag 1 and index 2 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 6 since phys page 0 is being replaced
+
+read at 00000c9d
+invalidating dtlb entry 1 since phys page 2 is being replaced
+invalidating DC line with tag 9 and index 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 4 since phys page 2 is being replaced
+
+read at 0000004e
+invalidating L2 line with tag 1 and index 9 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index a since phys page 1 is being replaced
+
+read at 00000174
+invalidating DC line with tag f and index 3 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index f since phys page 3 is being replaced
+
+read at 00000659
+invalidating dtlb entry 1 since phys page 0 is being replaced
+invalidating DC line with tag 1 and index 2 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 6 since phys page 0 is being replaced
+
+read at 00000ebd
+invalidating L2 line with tag 2 and index 9 since phys page 2 is being replaced
+
+read at 00000d60
+invalidating DC line with tag 5 and index 0 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 4 since phys page 1 is being replaced
+
+read at 00000d9d
+
+read at 0000046d
+invalidating dtlb entry 1 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 7 since phys page 3 is being replaced
+
+read at 00000c45
+invalidating L2 line with tag 0 and index 5 since phys page 0 is being replaced
+
+read at 000008f0
+invalidating DC line with tag a and index 3 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index b since phys page 2 is being replaced
+
+read at 0000054f
+invalidating dtlb entry 1 since phys page 1 is being replaced
+invalidating DC line with tag 6 and index 1 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 6 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 9 since phys page 1 is being replaced
+
+read at 00000818
+
+read at 00000df4
+invalidating DC line with tag d and index 2 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 6 since phys page 3 is being replaced
+
+read at 00000548
+
+read at 00000d92
+
+read at 00000e19
+invalidating L2 line with tag 0 and index 4 since phys page 0 is being replaced
+
+read at 000007f8
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 1 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index f since phys page 2 is being replaced
+
+read at 00000745
+
+read at 000005ae
+
+read at 00000030
+invalidating L2 line with tag 3 and index 9 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index f since phys page 3 is being replaced
+
+read at 00000002
+
+read at 000001d6
+invalidating dtlb entry 0 since phys page 0 is being replaced
+invalidating DC line with tag 0 and index 1 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 1 since phys page 0 is being replaced
+
+read at 000009c7
+invalidating L2 line with tag 2 and index 4 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index f since phys page 2 is being replaced
+
+read at 00000593
+
+read at 00000d5a
+invalidating dtlb entry 0 since phys page 3 is being replaced
+invalidating DC line with tag c and index 3 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 0 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 3 since phys page 3 is being replaced
+
+read at 0000071e
+invalidating L2 line with tag 0 and index d since phys page 0 is being replaced
+
+read at 000001b3
+invalidating DC line with tag b and index 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index c since phys page 2 is being replaced
+
+read at 0000061e
+invalidating DC line with tag 6 and index 2 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 4 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 9 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index a since phys page 1 is being replaced
+
+read at 00000689
+
+read at 000005b0
+invalidating L2 line with tag 3 and index 5 since phys page 3 is being replaced
+
+read at 000004fe
+invalidating L2 line with tag 0 and index 1 since phys page 0 is being replaced
+
+read at 000002ce
+invalidating dtlb entry 1 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index b since phys page 2 is being replaced
+
+read at 00000b5b
 invalidating DC line with tag 4 and index 1 since phys page 1 is being replaced
 invalidating L2 line with tag 1 and index 1 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 8 since phys page 1 is being replaced
+
+read at 0000086f
+invalidating dtlb entry 1 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index b since phys page 3 is being replaced
+
+read at 00000a76
+invalidating DC line with tag 3 and index 3 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index f since phys page 0 is being replaced
+
+read at 00000474
+invalidating DC line with tag b and index 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index c since phys page 2 is being replaced
+
+read at 000004aa
+
+read at 00000330
+invalidating dtlb entry 1 since phys page 1 is being replaced
+invalidating DC line with tag 5 and index 1 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 5 since phys page 1 is being replaced
+
+read at 00000f1b
+invalidating L2 line with tag 3 and index 6 since phys page 3 is being replaced
+
+read at 00000805
+invalidating L2 line with tag 0 and index 7 since phys page 0 is being replaced
+
+read at 00000aaa
+invalidating DC line with tag a and index 2 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 7 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index a since phys page 2 is being replaced
+
+read at 00000b71
+invalidating DC line with tag 4 and index 3 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 3 since phys page 1 is being replaced
+
+read at 00000d26
+invalidating DC line with tag c and index 1 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 1 since phys page 3 is being replaced
+
+read at 000005fb
+invalidating dtlb entry 0 since phys page 0 is being replaced
+invalidating DC line with tag 0 and index 0 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 0 since phys page 0 is being replaced
+
+read at 00000398
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index a since phys page 2 is being replaced
+
+read at 00000875
+invalidating L2 line with tag 1 and index 7 since phys page 1 is being replaced
+
+read at 00000870
+
+read at 00000f28
+invalidating DC line with tag c and index 2 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 2 since phys page 3 is being replaced
+
+read at 000004d2
+invalidating L2 line with tag 0 and index f since phys page 0 is being replaced
+
+read at 00000cfa
+invalidating dtlb entry 1 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 9 since phys page 2 is being replaced
+
+read at 000006d9
+invalidating L2 line with tag 1 and index 7 since phys page 1 is being replaced
+
+read at 00000947
+invalidating dtlb entry 1 since phys page 3 is being replaced
+invalidating DC line with tag c and index 2 since phys page 3 is being replaced
+invalidating L2 line with tag 3 and index 2 since phys page 3 is being replaced
+
+read at 00000f7c
+invalidating L2 line with tag 0 and index d since phys page 0 is being replaced
+
+read at 0000027a
+invalidating L2 line with tag 2 and index f since phys page 2 is being replaced
+
+read at 0000042c
+invalidating DC line with tag 7 and index 1 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index d since phys page 1 is being replaced
+
+read at 0000020c
+
+read at 00000f14
+
+read at 00000398
+invalidating L2 line with tag 3 and index 4 since phys page 3 is being replaced
+
+read at 0000082b
+invalidating DC line with tag 4 and index 2 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 2 since phys page 1 is being replaced
+
+read at 000001f7
+invalidating dtlb entry 0 since phys page 2 is being replaced
+invalidating DC line with tag 8 and index 0 since phys page 2 is being replaced
+invalidating DC line with tag 9 and index 3 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 0 since phys page 2 is being replaced
+invalidating L2 line with tag 2 and index 7 since phys page 2 is being replaced
+
+read at 0000095f
+invalidating L2 line with tag 0 and index 1 since phys page 0 is being replaced
+invalidating L2 line with tag 0 and index 7 since phys page 0 is being replaced
+
+read at 0000006f
+invalidating L2 line with tag 3 and index 9 since phys page 3 is being replaced
+
+read at 0000072d
+invalidating dtlb entry 0 since phys page 1 is being replaced
+invalidating L2 line with tag 1 and index 2 since phys page 1 is being replaced
 

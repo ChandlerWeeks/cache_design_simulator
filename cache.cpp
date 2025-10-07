@@ -1,7 +1,5 @@
 #include "cache.h"
 
-// TODO: ALWAYS TO NO WRITE ALLOCATE
-
 Cache::Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeThrough, std::string type) {
   this->numSets = numSets;
   this->setSize = setSize;
@@ -68,13 +66,15 @@ void Cache::extract_address_properties(uint32_t address, uint32_t* offset, uint3
   *tag = address >> (blockOffsetSize + indexSize);
 }
 
-bool Cache::cacheRead(uint32_t address) {
+bool Cache::cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res) {
     // cache breakdown
     uint32_t offset;
     uint32_t index;
     uint32_t tag;
 
     extract_address_properties(address, &offset, &index, &tag);
+    indexOut = index;
+    tagOut = tag;
 
     timestamp++;
 
@@ -83,12 +83,14 @@ bool Cache::cacheRead(uint32_t address) {
     for (CacheLine &line : set) {
       if (line.isCacheHit(tag) && line.isValid()) {
         line.setTimestamp(timestamp);
+        res = true;
         return true; // successful run
       }
     }
 
     // handle the cache miss
     // Find the cahce block to evict using LRU or whatever the fuck im supposed to do
+    res = false;
     CacheLine* oldest = &set[0];
     for (CacheLine &line : set) {
       // just put it in an invalid line if we find one
@@ -107,10 +109,6 @@ bool Cache::cacheRead(uint32_t address) {
       if (nextLevel != nullptr) {
         nextLevel->cacheWrite(address);
       }
-    }
-    
-    if (nextLevel != nullptr) {
-      nextLevel->cacheRead(address);
     }
 
     oldest->replaceCache(tag, false);
@@ -156,7 +154,9 @@ bool Cache::cacheWrite(uint32_t address) {
     }
     // write back write allocate, fetch memory into cache, then perform the cache write
     else {
-      cacheRead(address); // fetch the address from memory
+      uint32_t index, tag;
+      short res;
+      cacheRead(address, index, tag, res); // fetch the address from memory
       // get the cache block
       for (CacheLine &line : set) {
         if (line.isValid() && line.isCacheHit(tag)) {
@@ -179,8 +179,6 @@ bool Cache::invalidateAddress(uint32_t address) {
   uint32_t tag;
 
   extract_address_properties(address, &offset, &index, &tag);
-
-  std::cout << "RAHHH INVALIDING THIS BIT" << std::endl;
 
   std::vector<CacheLine>& set = cache[index];
     for (CacheLine &line : set) {

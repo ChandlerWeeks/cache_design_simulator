@@ -4,6 +4,7 @@
 #include <cmath>
 #include <vector>
 #include <sstream>
+#include "TLB.h"
 
 class PageTableEntry {
   private:
@@ -28,11 +29,6 @@ class PageTableEntry {
 };
 
 class PageTable {
-  public:
-    PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint32_t pageSize);
-    void printPTAttributes();
-    void initializePageTable();
-    uint32_t translateAddress(uint32_t virtualAddress);
   private:
     uint32_t pfnUsedCount;
     uint32_t timestamp;
@@ -42,10 +38,18 @@ class PageTable {
     uint32_t bitsPerPTI;
     uint32_t bitsPerPageOffset;
     std::vector<PageTableEntry> entries;
-    void evictLRU(uint32_t virtualAddress);
-    PageTableEntry* findLRU();
-    void PTWrite();
-    void isPTMiss();
-    void isPTHit();
+    uint32_t evictLRU(uint32_t virtualAddress);
+    uint32_t findLRU();
+    TLB* tlb;
     void handleSoftPageFault(PageTableEntry* entry, uint32_t virtualAddress);
+  public:
+    PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint32_t pageSize);
+    void printPTAttributes();
+    void initializePageTable();
+    uint32_t translateAddress(uint32_t virtualAddress, short &PTres, uint32_t &PFN);
+    uint32_t getBitsPerPageOffset();
+    void printPageTable();
+    void markAddressDirty(uint32_t virtualAddress); // TODO: call this on a write
+    void incrementTimestamp(uint32_t vpn);
+    void setTLB(TLB* tlb);
 };

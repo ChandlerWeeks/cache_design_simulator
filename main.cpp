@@ -7,10 +7,11 @@
 #include "TLB.h"
 
 //Data Translation Lookaside Buffer, cache for virtual memory address translations to physical memory
-TLB init_TLB(ConfigRetrieval configRetriever) {
+TLB init_TLB(ConfigRetrieval configRetriever, uint32_t offsetBits) {
   TLB tlb{
     static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("TLB Number of sets"))),
-    static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("TLB Set size")))
+    static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("TLB Set size"))),
+    offsetBits
   };
   return tlb;
 }
@@ -59,7 +60,7 @@ int main() {
     Cache dataCache = init_data_cache(configRetriever);
     Cache L2Cache = init_L2(configRetriever);
     PageTable pageTable = init_PT(configRetriever);
-    TLB tlb = init_TLB(configRetriever);
+    TLB tlb = init_TLB(configRetriever, pageTable.getBitsPerPageOffset());
 
     // Now use the mapping
     bool useVA = configRetriever.get_config_mapping().at("L2 Cache Virtual addresses") == " y";

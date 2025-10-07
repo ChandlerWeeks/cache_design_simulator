@@ -57,7 +57,7 @@ class Cache {
     bool invalidateAddress(uint32_t address);
     
     bool initializeCacheStructure();
-    bool cacheRead(uint32_t address);
+    bool cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
     bool cacheWrite(uint32_t address);
     void printCacheProperties();
 

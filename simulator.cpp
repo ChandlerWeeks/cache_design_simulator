@@ -27,6 +27,12 @@ uint32_t hexToUint32(const std::string hexString) {
     return static_cast<uint32_t>(std::stoul(hexString, nullptr, 16));
 }
 
+std::string addressToHex(uint32_t address) {
+  std::ostringstream oss;
+  oss << std::hex << std::nouppercase << address;
+  return oss.str();
+}
+
 void printBits(uint32_t n) {
   for (int i = 31; i>=0; --i) {
     if ((n >> i) & 1) {
@@ -52,59 +58,126 @@ void Simulator::printHeader() {
   printf("-------- ------ ---- ------ --- ---- ---- ---- ------ --- ---- ------ --- ----\n");
 }
 
-void Simulator::printOutputRow() {
-  printf("%-8s %-6s %-4s %-6s %-3s %-4s %-4s %-4s %-6s %-3s %-4s %-6s %-3s %-4s\n",
-       "Virtual", "Virt.", "Page", "TLB", "TLB", "TLB", "PT", "Phys",
-       "DC", "DC", "L2", "L2", "L2", "L2");
+std::string hitMissStr(short res) {
+    switch (res) {
+        case -1: return "";       // invalid → empty string
+        case 0:  return "miss";
+        case 1:  return "hit";
+        default: return "";
+    }
+}
+
+void Simulator::printOutputRow(
+  uint32_t address, uint32_t VPN, uint32_t pageOffset,
+  uint32_t TLBTag, uint32_t TLBIndex, short TLBRes,
+  short PTRes, uint32_t PFN,
+  uint32_t DCTag, uint32_t DCIndex, short DCRes,
+  uint32_t L2Tag, uint32_t L2Index, short L2Res)
+{
+  printf("%08x %6x %4x %6x %3x %-4s %-4s %4x %6x %3x %-4s",
+         address,
+         VPN,
+         pageOffset,
+         TLBTag,
+         TLBIndex,
+         hitMissStr(TLBRes).c_str(),
+         hitMissStr(PTRes).c_str(),
+         PFN,
+         DCTag,
+         DCIndex,
+         hitMissStr(DCRes).c_str());
+  if (DCRes == 1) {
+    printf(" %6s %3s %-4s\n", "", "", "");
+  } else {
+    printf(" %6x %3x %-4s\n",
+           L2Tag,
+           L2Index,
+           hitMissStr(L2Res).c_str());
+  }
 }
 
 std::string boolToHitMiss(short val) {
   switch(val) {
-    case -1:
-      return "";
     case 0:
       return "miss";
     case 1:
       return "hit";
   }
+  return "";
 }
 
 //TODO: make it so this prints each row what happens
-void Simulator::processInstructions(TraceReciever instructions, Cache dataCache, PageTable pageTable) {
+void Simulator::processInstructions(TraceReciever instructions, Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb) {
   uint32_t address = 0, VPN = 0, pageOffset = 0,
-          TLBTag = 0, TLBIndex = 0, PFN = 0,
-          DCTag = 0, DCIndex = 0,
-          L2Tag = 0, L2Index = 0;
+           TLBTag = 0, TLBIndex = 0, PFN = 0,
+           DCTag = 0, DCIndex = 0,
+           L2Tag = 0, L2Index = 0;
 
   // use a short for a boolean with *3* whole states
   short TLBRes = -1, PTRes = -1, DCRes = -1, L2Res = -1;
 
 
   while(!instructions.isQueueEmpty()) {
+    // get the next instruction
+    bool isRead = instructions.isNextRead();
     uint32_t virtualAddress = processAddress(instructions.getRecentInstruction()[1]);
-    uint32_t physicalAddress;
-    if (useTLB) {
-      // TODO: implement that whole TLB thing
-    }
     
+    uint32_t physicalAddress;
 
-    if (useVA && (!useTLB || 0==0)) { // eventually put tag for tlb hit
-      physicalAddress = pageTable.translateAddress(virtualAddress);
-    } else {
+    address = virtualAddress;
+    VPN = virtualAddress >> pageTable.getBitsPerPageOffset();
+    pageOffset = virtualAddress & ( (1 << pageTable.getBitsPerPageOffset()) - 1);
+    if (useVA && useTLB) {
+      pageTable.setTLB(&tlb);
+    }
+
+    if (useTLB) {
+      physicalAddress = tlb.translateAddress(virtualAddress, TLBRes, TLBTag, TLBIndex, PFN);
+    }
+    if (useVA && (!useTLB || TLBRes != 1)) { // eventually put tag for tlb hit
+      physicalAddress = pageTable.translateAddress(virtualAddress, PTRes, PFN);
+    } else if (useVA && TLBRes == 1) {
+      // TLB hit path:
+      // you already got PFN from the TLB…
+      // now update the PT entry’s timestamp so it isn’t evicted
+      uint32_t vpn = virtualAddress >> pageTable.getBitsPerPageOffset();
+      pageTable.incrementTimestamp(vpn);  // new helper that does entry->setTimestamp(...)
+    }
+    if (!useVA && !useTLB) {
       physicalAddress = virtualAddress;
     }
 
-    // data cache is NOT optional
-    if (instructions.isNextRead()) {
-      dataCache.cacheRead(physicalAddress);
+    if (useTLB && TLBRes == 0) {
+      tlb.addEntry(virtualAddress, PFN);
+    }
+
+    // always use data cache
+    if (isRead) {
+      dataCache.cacheRead(physicalAddress, DCIndex, DCTag, DCRes);
     } else { // write
       dataCache.cacheWrite(physicalAddress);
+      if (useVA) {
+        pageTable.markAddressDirty(virtualAddress);
+      }
     }
 
     if (useL2) {
-      
+      if (DCRes == 0) { // L2 only accessed on DC miss
+        if (isRead) {
+          L2Cache.cacheRead(physicalAddress, L2Index, L2Tag, L2Res);
+        } else { // write
+          L2Cache.cacheWrite(physicalAddress);
+        }
+      }
     }
-    printOutputRow();
+    printOutputRow(address, VPN, pageOffset, TLBTag, TLBIndex, TLBRes, PTRes, PFN, DCTag, DCIndex, DCRes, L2Tag, L2Index, L2Res);
+
+    // reset everything for next iteration
+    address = 0; VPN = 0; pageOffset = 0;
+    TLBTag = 0; TLBIndex = 0; PFN = 0;
+    DCTag = 0; DCIndex = 0;
+    L2Tag = 0; L2Index = 0;
+    TLBRes = -1; PTRes = -1; DCRes = -1; L2Res = -1;
   }
   
 }
@@ -116,5 +189,5 @@ Simulator::Simulator(Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tl
   Simulator::print_hierarchy_setup(dataCache, L2Cache, pageTable, tlb);
   std::cout << std::endl;
   printHeader();
-  processInstructions(instructions, dataCache, pageTable);
+  processInstructions(instructions, dataCache, L2Cache, pageTable, tlb);
 }
