@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include "statistics.h"
 
 class CacheLine {
   private:
@@ -21,46 +22,42 @@ class CacheLine {
     uint64_t getTimestamp();
     bool isValid();
     bool isDirty();
+    uint32_t getTag();
 };
 
 class Cache {
-  private:
-    // Cache properties
-    uint32_t address;
+public:
+    Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeThrough, std::string type);
+    uint32_t getLineSize();
+    void setNextLevel(Cache* nextLevel);
+    void setParent(Cache* parent);
+    void printCacheProperties();
+    void extract_address_properties(uint32_t address, uint32_t* offset, uint32_t* index, uint32_t* tag);
+    void cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
+    void cacheWrite(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
+    void invalidateAddress(uint32_t address);
+    void setStats(Statistics* stats) { this->stats = stats; }
+    bool isWriteThrough() { return writeThrough; }
+
+private:
     uint32_t numSets;
     uint32_t setSize;
     uint32_t lineSize;
-    bool writeThrough;
     uint32_t cacheSize;
     uint32_t blockOffsetSize;
     uint32_t indexSize;
     uint32_t tagSize;
+    bool writeThrough;
+    uint64_t timestamp;
     std::string cacheType;
-    void determineCacheProperties();
-    void extract_address_properties(uint32_t address, uint32_t* offset, uint32_t* index, uint32_t* tag);
-
-    // for replacement 
     Cache* nextLevel;
     Cache* parentCache;
+    Statistics* stats;
 
-    // Cache structure
-    std::vector<std::vector<CacheLine>> cache; // dimension 1 is the set, dimension 2 is the block
+    std::vector<std::vector<CacheLine>> cache;
 
-    // LRU related
-    uint64_t timestamp;
-  public:
-    Cache(uint32_t numSets, uint32_t setSize, uint32_t lineSize, bool writeThrough, std::string type);
-    
-    void setNextLevel(Cache* nextLevel);
-    void setParent(Cache* parent);
-    uint32_t getLineSize();
-    void invalidateAddress(uint32_t address);
-    
+    void determineCacheProperties();
     void initializeCacheStructure();
-    void cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
-    void cacheWrite(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, short &res);
-    void printCacheProperties();
-
     void invalidateParents(uint32_t address);
-    void invalidateLineFromPFN(uint32_t PFN);
+    uint32_t reconstructAddress(uint32_t tag, uint32_t setIndex); // New helper function
 };

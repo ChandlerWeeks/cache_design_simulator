@@ -1,9 +1,16 @@
 #include "config_retrieval.h"
 #include <iostream>
 #include <fstream>
+#include <filesystem>
+#include <string>
 
 ConfigRetrieval::ConfigRetrieval() {
-  config_dir = "./memhier/trace.config";
+  for (auto& entry : std::filesystem::directory_iterator("./")) {
+    if (entry.path().filename() == "trace.config") {
+      config_dir = entry.path().string();
+      break;
+    }
+  }
 }
 
 std::vector<std::string> ConfigRetrieval::get_configuration() {
@@ -33,7 +40,6 @@ void ConfigRetrieval::set_config_parameters(std::vector<std::string> parameters)
   std::string currSection;
 
   for (std::string line : parameters) {
-    // determine if a section change occurs
     if (line == "Data TLB configuration") {
       currSection = "TLB ";
     } else if (line == "Page Table configuration") {

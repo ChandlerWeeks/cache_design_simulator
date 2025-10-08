@@ -5,6 +5,7 @@
 #include "trace_retrieval.h"
 #include "PageTable.h"
 #include "TLB.h"
+#include "statistics.h"
 
 class Simulator {
   public:
@@ -13,6 +14,7 @@ class Simulator {
     bool useL2;
     bool useVA;
     bool useTLB;
+    Statistics stats;
     int memoryAccesses = 0;
     int pageTableAccesses = 0;
     int diskAccesses = 0;

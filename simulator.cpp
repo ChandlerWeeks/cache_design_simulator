@@ -5,21 +5,19 @@
 #include <cstdio>
 
 void Simulator::print_hierarchy_setup(Cache dataCache, Cache L2cache, PageTable pageTable, TLB tlb) {
-  if (useTLB) {
-    tlb.printTLBInfo();
-  } std::cout << std::endl;
-  if (useVA) {
-    pageTable.printPTAttributes();
-  } std::cout << std::endl;
+  tlb.printTLBInfo();
+  std::cout << std::endl;
+  pageTable.printPTAttributes();
+  std::cout << std::endl;
   dataCache.printCacheProperties();
   std::cout << std::endl;
-  if (useL2) {
-    std::cout << std::endl;
-    L2cache.printCacheProperties();
-  }std::cout << std::endl;
+  L2cache.printCacheProperties();
+  std::cout << std::endl;
 
   if (useVA) {
-    std::cout << "The addresses read in are virtual addresses";
+    std::cout << "The addresses read in are virtual addresses." << std::endl;
+  } else {
+    std::cout << "The addresses read in are physical addresses." << std::endl;
   }
 }
 
@@ -60,10 +58,9 @@ void Simulator::printHeader() {
 
 std::string hitMissStr(short res) {
     switch (res) {
-        case -1: return "";       // invalid → empty string
+        case -1: return "";
         case 0:  return "miss";
         case 1:  return "hit";
-        default: return "";
     }
 }
 
@@ -117,7 +114,6 @@ std::string boolToHitMiss(short val) {
   return "";
 }
 
-//TODO: make it so this prints each row what happens
 void Simulator::processInstructions(TraceReciever instructions, Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb) {
   uint32_t address = 0, VPN = 0, pageOffset = 0,
            TLBTag = 0, TLBIndex = 0, PFN = 0,
@@ -126,20 +122,26 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
 
   // use a short for a boolean with *3* whole states
   short TLBRes = -1, PTRes = -1, DCRes = -1, L2Res = -1;
-  bool PFNEvicted = false;
 
   while(!instructions.isQueueEmpty()) {
     // get the next instruction
     bool isRead = instructions.isNextRead();
+    if (isRead) {
+      stats.incrementReads();
+    } else {
+      stats.incrementWrites();
+    }
     uint32_t virtualAddress = processAddress(instructions.getRecentInstruction()[1]);
     uint32_t physicalAddress;
     Cache* lowestCache = nullptr;
+    Cache* highestCache = nullptr;
     if (useL2) {
       lowestCache = &L2Cache;
+      highestCache = &dataCache;
       L2Cache.setParent(&dataCache);
       dataCache.setNextLevel(&L2Cache);
     } else {
-      lowestCache = &dataCache;
+      highestCache = &dataCache;
     }
 
     address = virtualAddress;
@@ -148,6 +150,7 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
     if (useVA && useTLB) {
       pageTable.setTLB(&tlb);
       pageTable.setLowestCache(lowestCache);
+      pageTable.setHighestCache(highestCache);
     }
 
     if (useTLB) {
@@ -157,10 +160,8 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
       physicalAddress = pageTable.translateAddress(virtualAddress, PTRes, PFN);
     } else if (useVA && TLBRes == 1) {
       // TLB hit path:
-      // you already got PFN from the TLB…
-      // now update the PT entry’s timestamp so it isn’t evicted
       uint32_t vpn = virtualAddress >> pageTable.getBitsPerPageOffset();
-      pageTable.incrementTimestamp(vpn);  // new helper that does entry->setTimestamp(...)
+      pageTable.incrementTimestamp(vpn); 
     }
     if (!useVA && !useTLB) {
       physicalAddress = virtualAddress;
@@ -187,6 +188,12 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
         } else { // write
           L2Cache.cacheWrite(physicalAddress, L2Index, L2Tag, L2Res);
         }
+      } else if (dataCache.isWriteThrough() && !isRead) {
+        // on a DC hit with write-through, write to L2 as well
+        uint32_t dummy1, dummy2;
+        short dummy3;
+        L2Cache.cacheWrite(physicalAddress, dummy1, dummy2, dummy3);
+
       }
     }
     printOutputRow(address, VPN, pageOffset, TLBTag, TLBIndex, TLBRes, PTRes, PFN, DCTag, DCIndex, DCRes, L2Tag, L2Index, L2Res);
@@ -198,15 +205,23 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
     L2Tag = 0; L2Index = 0;
     TLBRes = -1; PTRes = -1; DCRes = -1; L2Res = -1;
   }
-  
 }
 
 Simulator::Simulator(Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb, TraceReciever instructions, bool useVirtualAddresses, bool useTLB, bool useL2Cache) {
   this->useVA = useVirtualAddresses;
   this->useTLB = useTLB;
   this->useL2 = useL2Cache;
+  this->stats = Statistics();
+
+  // prepare statistics
+  tlb.setStats(&stats);
+  pageTable.setStats(&stats);
+  dataCache.setStats(&stats);
+  L2Cache.setStats(&stats);
+
   Simulator::print_hierarchy_setup(dataCache, L2Cache, pageTable, tlb);
   std::cout << std::endl;
   printHeader();
   processInstructions(instructions, dataCache, L2Cache, pageTable, tlb);
+  stats.printStatistics();
 }

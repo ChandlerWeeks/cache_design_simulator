@@ -38,7 +38,7 @@ Cache init_data_cache(ConfigRetrieval configRetriever) {
   return dataCache;
 }
 
-// L2 Cache, bigger but smaller
+// L2 Cache, bigger but slower
 Cache init_L2(ConfigRetrieval configRetriever) {
       Cache L2Cache{
         static_cast<uint32_t>(std::stoi(configRetriever.get_config_mapping().at("L2 Cache Number of sets"))),
@@ -55,7 +55,6 @@ int main() {
     TraceReciever instructions;
     
     std::vector<std::string> results = configRetriever.get_configuration();
-    instructions.getInstructions();
 
     Cache dataCache = init_data_cache(configRetriever);
     Cache L2Cache = init_L2(configRetriever);

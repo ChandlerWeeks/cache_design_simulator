@@ -7,7 +7,6 @@ TLB::TLB(uint32_t numSets, uint32_t setSize, uint32_t offsetBits) {
   this->offsetBits = offsetBits;
   this->tagBits = 32 - indexBits - offsetBits;
   this->timestamp = 0;
-
   initializeTLB();
 }
 
@@ -39,6 +38,7 @@ uint32_t TLB::translateAddress(uint32_t virtualAddress, short &TLBres, uint32_t 
     TLBEntry& entry = set[i];
     if (entry.isValid() && entry.getTag() == tag) {
       // TLB hit
+      stats->incrementDTLBHits();
       TLBres = 1;
       entry.setTimestamp(timestamp++);
       PFN = entry.getPFN();
@@ -48,6 +48,7 @@ uint32_t TLB::translateAddress(uint32_t virtualAddress, short &TLBres, uint32_t 
 
   // TLB miss
   TLBres = false;
+  stats->incrementDTLBMisses();
   return 0;
 }
 
@@ -58,7 +59,7 @@ void TLB::addEntry(uint32_t virtualAddress, uint32_t PFN) {
   std::vector<TLBEntry>& set = entries[index];
   // Find the oldest entry 
   int lruIndex = 0;
-  int oldestTimestamp = set[0].getTimestamp();
+  uint32_t oldestTimestamp = set[0].getTimestamp();
   for (long unsigned int i = 0; i < set.size(); i++) {
     if (!set[i].isValid()) {
       lruIndex = i;

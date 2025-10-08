@@ -79,13 +79,18 @@ void Cache::cacheRead(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, sh
   for (CacheLine &line : set) {
     if (line.isCacheHit(tag) && line.isValid()) {
       line.setTimestamp(timestamp++);
+      stats->incrementCacheHits(cacheType);
       res = true;
       return;
     }
   }
   // handle the cache miss
-  // Find the cahce block to evict using LRU or whatever the fuck im supposed to do
+  // Find the cache block to evict using LRU
   res = false;
+  if (nextLevel == nullptr) {
+    stats->incrementMainMemoryAccesses();
+  }
+  stats->incrementCacheMisses(cacheType);
   CacheLine* oldest = &set[0];
   for (CacheLine &line : set) {
     if (line.getTimestamp() < oldest->getTimestamp()) {
@@ -120,48 +125,54 @@ void Cache::cacheWrite(uint32_t address, uint32_t &indexOut, uint32_t &tagOut, s
   std::vector<CacheLine>& set = cache[index];
   for (CacheLine &line : set) {
     if (line.isCacheHit(tag) && line.isValid()) {
+      stats->incrementCacheHits(cacheType);
       res = true;
       // WRITE THROUGH: write down to each tier of cache
       line.setTimestamp(timestamp++);
-      if (writeThrough) {
-        if (nextLevel != nullptr) {
-          uint32_t dummy1, dummy2;
-          short dummy3;
-          nextLevel->cacheWrite(address, dummy1, dummy2, dummy3);
-          return;
-        }
-      } 
+      return;
       // Write Back policy: dont write down to each tier, dirty bit
-      else { 
+      if (!writeThrough) { 
         line.setDirtyBit();
         return;
       }
     }
   }
   
-  // ONLY DO NO WRITE ALLOCATE
   // write through no write allocate
   res = false;
+  stats->incrementCacheMisses(cacheType);
   if (writeThrough) {
     // just write to memory??
+    stats->incrementMainMemoryAccesses();
   }
   // write back write allocate, fetch memory into cache, then perform the cache write
   else {
-    uint32_t index, tag;
-    short res;
-    cacheRead(address, index, tag, res); // fetch the address from memory
-    // get the cache block
+    // write-back + write-allocate on write miss
+    stats->incrementMainMemoryAccesses();
+
+    // select victim: prefer invalid, else LRU
+    CacheLine* victim = &set[0];
     for (CacheLine &line : set) {
-      if (line.isValid() && line.isCacheHit(tag)) {
-        line.setTimestamp(timestamp);
-        if (nextLevel != nullptr) {
-          uint32_t dummy1, dummy2;
-          short dummy3;
-          nextLevel->cacheWrite(address, dummy1, dummy2, dummy3);
-        }
+      if (!line.isValid()) {
+        victim = &line;
         break;
+      } else if (line.getTimestamp() < victim->getTimestamp()) {
+        victim = &line;
       }
     }
+
+    // write back dirty victim to next level
+    if (victim->isDirty() && victim->isValid()) {
+      invalidateParents(address);
+      if (nextLevel) {
+        uint32_t wbIdx, wbTag; short wbRes;
+        nextLevel->cacheWrite(address, wbIdx, wbTag, wbRes);
+      }
+    }
+
+    // install fetched block and mark dirty for this write
+    victim->replaceCache(tag, true);
+    victim->setTimestamp(timestamp++);
   }
 }
 
@@ -184,7 +195,6 @@ void Cache::invalidateAddress(uint32_t address) {
   }
 }
 
-// TODO: this needs to ensure inclusivity, there should be a block in l1 than points to this one, if it changes invalidate the **others**
 void Cache::invalidateParents(uint32_t address) {
   if (parentCache == nullptr) {
     return;

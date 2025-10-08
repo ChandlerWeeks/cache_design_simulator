@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
 
 # Project Definitions
-EXECUTABLE = CacheSimulator
+EXECUTABLE = memhier_sim
 
 # Source files
 SOURCES = cache.cpp \
@@ -14,45 +14,28 @@ SOURCES = cache.cpp \
           PageTableEntry.cpp \
           simulator.cpp \
           TLB.cpp \
-					TLBEntry.cpp \
-          trace_retrieval.cpp
+          TLBEntry.cpp \
+          trace_retrieval.cpp \
+          statistics.cpp
 
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
 
-#-----------------------------------------------------------------------------
-# Targets
-#-----------------------------------------------------------------------------
 
-# Default: build, run, and clean
-.PHONY: execute
-execute: all
-	./$(EXECUTABLE)
-	$(MAKE) clean
+.DEFAULT_GOAL := all 
 
-# Build executable
 .PHONY: all
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $@
 
-# Compile each source file
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-# Run without cleaning
-.PHONY: run
-run: $(EXECUTABLE)
+.PHONY: execute
+execute: all
 	./$(EXECUTABLE)
+	$(MAKE) clean
 
-# Clean all build files
 .PHONY: clean
 clean:
 	rm -f $(OBJECTS)
 	rm -f *.gcno *.gcda
-
-# Clean only executable
-#.PHONY: clean-exe
-# clean-exe:
-#	rm -f $(EXECUTABLE)

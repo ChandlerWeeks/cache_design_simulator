@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdint>
 #include <vector>
+#include "statistics.h"
 
 class TLBEntry {
   private:
@@ -36,11 +37,13 @@ class TLB {
     uint32_t valid;
     uint32_t PFN;
     uint32_t timestamp;
+    Statistics* stats;
     std::vector<std::vector<TLBEntry>> entries;
   public:
     TLB(uint32_t numSets, uint32_t setSize, uint32_t offsetBits);
     void printTLBInfo();
     void initializeTLB();
+    void setStats(Statistics* stats) { this->stats = stats; }
     uint32_t translateAddress(uint32_t virtualAddress, short &TLBres, uint32_t &TLBTag, uint32_t &TLBIndex, uint32_t &PFN);
     void addEntry(uint32_t virtualAddress, uint32_t PFN);
     // Invalidate any TLB entries mapped to the given physical frame (PFN)

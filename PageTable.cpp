@@ -27,6 +27,10 @@ void PageTable::setLowestCache(Cache* cache) {
   this->lowestCache = cache;
 }
 
+void PageTable::setHighestCache(Cache* cache) {
+  this->highestCache = cache;
+}
+
 void PageTable::initializePageTable() {
   // because there can be different amounts of vp to pp create it pte manually
   for (uint32_t i = 0; i < virtualPageCount; i++) {
@@ -49,31 +53,33 @@ uint32_t PageTable::translateAddress(uint32_t virtualAddress, short &PTres, uint
     entry = &entries[vpn];
     if (entry->isValid()) {
       PTres = 1; // hit
+      stats->incrementPTHits();
       entry->setTimestamp(timestamp++);
       PFN = entry->getPFN();
       return (entry->getPFN() << bitsPerPageOffset) | (virtualAddress & (pageSize - 1));
     } else {
       PTres = 0; // miss
-      handleSoftPageFault(entry, virtualAddress);
+      handleSoftPageFault(entry);
       entry->setTimestamp(timestamp++);
+      stats->incrementDiskRefs();
+      stats->incrementPTMisses();
       PFN = entry->getPFN();
       return (entry->getPFN() << bitsPerPageOffset) | (virtualAddress & (pageSize - 1));
     }
   }
 
-  // hard page fault, shits fucked...
+  // hard page fault, addresses are too big for current vpn size
   throw std::runtime_error("hierarchy: virtual address " + addressToHexi(virtualAddress) + " is too large");
 }
 
-void PageTable::handleSoftPageFault(PageTableEntry* entry, uint32_t virtualAddress) {
+void PageTable::handleSoftPageFault(PageTableEntry* entry) {
   if (pfnUsedCount < physicalPageCount) {
     entry->setPFN(pfnUsedCount++);
     entry->setValid(true);
   } else {
-    uint32_t evictedPFN = evictLRU(virtualAddress);
+    uint32_t evictedPFN = evictLRU();
     entry->setPFN(evictedPFN);
     entry->setValid(true);
-    // invalidat
   }
 }
 
@@ -85,13 +91,12 @@ void PageTable::printPTAttributes() {
   std::cout << "Number of bits used for the page offset is " << this->bitsPerPageOffset << ".\n";
 }
 
-uint32_t PageTable::evictLRU(uint32_t virtualAddress) {
+uint32_t PageTable::evictLRU() {
   uint32_t evictedIndex = findLRU();
   PageTableEntry* evictedEntry = &entries[evictedIndex];
   uint32_t freedPFN = entries[evictedIndex].getPFN();
-  uint32_t vpn = virtualAddress >> bitsPerPageOffset;
   if (evictedEntry->isDirty()) {
-    // disk write
+    stats->incrementDiskRefs();
     evictedEntry->setDirty(false);
   }
 
@@ -107,13 +112,21 @@ uint32_t PageTable::evictLRU(uint32_t virtualAddress) {
   if (tlb != nullptr) {
     tlb->invalidateByPFN(freedPFN);
   }
-  // invalidate all cache lines belonging to the evicted PFN, probably not efficent but it is what it is
+  // invalidate all cache lines belonging to the evicted PFN
   {
     uint32_t pageSizeBytes = 1u << bitsPerPageOffset;
-    uint32_t lineSizeBytes = lowestCache->getLineSize();
-    uint32_t basePhys = freedPFN << bitsPerPageOffset;
-    for (uint32_t off = 0; off < pageSizeBytes; off += lineSizeBytes) {
-      lowestCache->invalidateAddress(basePhys + off);
+    if (highestCache != nullptr || lowestCache != nullptr) {
+      uint32_t lineSizeBytes = lowestCache ? lowestCache->getLineSize()
+                                           : highestCache->getLineSize();
+      uint32_t basePhys = freedPFN << bitsPerPageOffset;
+      for (uint32_t off = 0; off < pageSizeBytes; off += lineSizeBytes) {
+        if (highestCache) {
+          highestCache->invalidateAddress(basePhys + off);
+        }
+        if (lowestCache) {
+          lowestCache->invalidateAddress(basePhys + off);
+        }
+      }
     }
   }
   return freedPFN;

@@ -41,3 +41,7 @@ uint64_t CacheLine::getTimestamp() {
 bool CacheLine::isDirty() {
   return this->dirty;
 }
+
+uint32_t CacheLine::getTag() {
+  return this->tag;
+}

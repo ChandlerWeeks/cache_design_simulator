@@ -3,25 +3,21 @@
 #include <fstream>
 
 TraceReciever::TraceReciever() {
-  tracePath = "./memhier/test_trace.dat";
-}
-
-void TraceReciever::getInstructions() {
-  std::vector<std::string> results;
-  std::ifstream file(tracePath);
-
-  if (!file.is_open()) {
-    std::cout << "Error reading config file.\n";
-    return;
-  }
+  std::string traceLine;
   std::vector<std::string> actions;
 
-  std::string line;
-  while (std::getline(file, line)) {
-    actions.push_back(line);
+  // Read from cin
+  while (std::getline(std::cin, traceLine)) {
+    if (!traceLine.empty()) {
+      actions.push_back(traceLine);
+    }
   }
-  file.close();
 
+  if (actions.empty()) {
+    std::cerr << "No instructions provided in standard input." << std::endl;
+  }
+
+  // Parse and populate the instruction queue
   setTraceConfiguration(actions);
 }
 

@@ -8,7 +8,6 @@
 class TraceReciever {
   public:
     TraceReciever();
-    void getInstructions();
     std::array<std::string, 2> getRecentInstruction();
     bool isQueueEmpty();
     bool isNextRead();

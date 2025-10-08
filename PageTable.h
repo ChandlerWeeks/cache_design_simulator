@@ -6,6 +6,7 @@
 #include <sstream>
 #include "TLB.h"
 #include "cache.h"
+#include "statistics.h"
 
 class PageTableEntry {
   private:
@@ -39,11 +40,13 @@ class PageTable {
     uint32_t bitsPerPTI;
     uint32_t bitsPerPageOffset;
     std::vector<PageTableEntry> entries;
-    uint32_t evictLRU(uint32_t virtualAddress);
+    uint32_t evictLRU();
     uint32_t findLRU();
     TLB* tlb;
+    Statistics* stats;
+    Cache* highestCache; // the highest cache in the hierarchy, used for write-backs
     Cache* lowestCache; // the lowest cache in the hierarchy, used for fetching on a page fault
-    void handleSoftPageFault(PageTableEntry* entry, uint32_t virtualAddress);
+    void handleSoftPageFault(PageTableEntry* entry);
   public:
     PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint32_t pageSize);
     void printPTAttributes();
@@ -51,8 +54,10 @@ class PageTable {
     uint32_t translateAddress(uint32_t virtualAddress, short &PTres, uint32_t &PFN);
     uint32_t getBitsPerPageOffset();
     void printPageTable();
-    void markAddressDirty(uint32_t virtualAddress); // TODO: call this on a write
+    void markAddressDirty(uint32_t virtualAddress);
     void incrementTimestamp(uint32_t vpn);
     void setTLB(TLB* tlb);
+    void setHighestCache(Cache* cache);
     void setLowestCache(Cache* cache);
+    void setStats(Statistics* stats) { this->stats = stats; }
 };
