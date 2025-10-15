@@ -1,11 +1,8 @@
-# Compiler Settings
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
 
-# Project Definitions
 EXECUTABLE = memhier_sim
 
-# Source files
 SOURCES = cache.cpp \
           CacheLine.cpp \
           config_retrieval.cpp \
@@ -18,9 +15,7 @@ SOURCES = cache.cpp \
           trace_retrieval.cpp \
           statistics.cpp
 
-# Object files
 OBJECTS = $(SOURCES:.cpp=.o)
-
 
 .DEFAULT_GOAL := all 
 
