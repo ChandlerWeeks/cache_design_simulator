@@ -2,7 +2,8 @@
 #include "trace_retrieval.h"
 #include <stdexcept>
 #include "simulator.h"
-#include "cache.h"
+#include "DC.h"
+#include "L2.h"
 #include "PageTable.h"
 #include "TLB.h"
 
@@ -27,27 +28,26 @@ PageTable init_PT(ConfigRetrieval configRetriever) {
 };
 
 // L1 Cache, smaller but faster cache
-Cache init_data_cache(ConfigRetrieval configRetriever) {
-    Cache dataCache{
+DataCache init_data_cache(ConfigRetrieval configRetriever, bool useL2) {
+    DataCache dataCache{
         static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Number of sets"))),
         static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Set size"))),
         static_cast<uint16_t>(std::stoi(configRetriever.get_config_mapping().at("Data Cache Line size"))),
         configRetriever.get_config_mapping().at("Data Cache Write through/no write allocate") == " y",
-        "D-"
+        useL2,
     };
   return dataCache;
 }
 
 // L2 Cache, bigger but slower
-Cache init_L2(ConfigRetrieval configRetriever) {
-      Cache L2Cache{
+L2Cache init_L2(ConfigRetrieval configRetriever) {
+      L2Cache l2cache{
         static_cast<uint32_t>(std::stoi(configRetriever.get_config_mapping().at("L2 Cache Number of sets"))),
         static_cast<uint32_t>(std::stoi(configRetriever.get_config_mapping().at("L2 Cache Set size"))),
         static_cast<uint32_t>(std::stoi(configRetriever.get_config_mapping().at("L2 Cache Line size"))),
-        configRetriever.get_config_mapping().at("L2 Cache Write through/no write allocate") == " y",
-        "L2"
+        configRetriever.get_config_mapping().at("L2 Cache Write through/no write allocate") == " y"
     };
-  return L2Cache;
+    return l2cache;
 }
 
 int main() {
@@ -56,14 +56,15 @@ int main() {
     
     std::vector<std::string> results = configRetriever.get_configuration();
 
-    Cache dataCache = init_data_cache(configRetriever);
-    Cache L2Cache = init_L2(configRetriever);
-    PageTable pageTable = init_PT(configRetriever);
-    TLB tlb = init_TLB(configRetriever, pageTable.getBitsPerPageOffset());
-
-    // Now use the mapping
+    // get the bools
     bool useVA = configRetriever.get_config_mapping().at("L2 Cache Virtual addresses") == " y";
     bool useTLB = configRetriever.get_config_mapping().at("L2 Cache TLB") == " y";
     bool useL2 = configRetriever.get_config_mapping().at("L2 Cache L2 cache") == " y";
-    Simulator sim(dataCache, L2Cache, pageTable, tlb, instructions, useVA, useTLB, useL2);
+
+    DataCache dataCache = init_data_cache(configRetriever, useL2);
+    L2Cache l2cache = init_L2(configRetriever);
+    PageTable pageTable = init_PT(configRetriever);
+    TLB tlb = init_TLB(configRetriever, pageTable.getBitsPerPageOffset());
+
+    Simulator sim(dataCache, l2cache, pageTable, tlb, instructions, useVA, useTLB, useL2);
 }

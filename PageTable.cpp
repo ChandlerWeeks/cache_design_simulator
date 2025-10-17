@@ -23,14 +23,6 @@ void PageTable::setTLB(TLB* tlb) {
   this->tlb = tlb;
 }
 
-void PageTable::setLowestCache(Cache* cache) {
-  this->lowestCache = cache;
-}
-
-void PageTable::setHighestCache(Cache* cache) {
-  this->highestCache = cache;
-}
-
 void PageTable::initializePageTable() {
   // because there can be different amounts of vp to pp create it pte manually
   for (uint32_t i = 0; i < virtualPageCount; i++) {
@@ -113,21 +105,21 @@ uint32_t PageTable::evictLRU() {
     tlb->invalidateByPFN(freedPFN);
   }
   // invalidate all cache lines belonging to the evicted PFN
-  {
-    uint32_t pageSizeBytes = 1u << bitsPerPageOffset;
-    if (highestCache != nullptr || lowestCache != nullptr) {
-      uint32_t lineSizeBytes = lowestCache ? lowestCache->getLineSize()
-                                           : highestCache->getLineSize();
-      uint32_t basePhys = freedPFN << bitsPerPageOffset;
-      for (uint32_t off = 0; off < pageSizeBytes; off += lineSizeBytes) {
-        if (highestCache) {
-          highestCache->invalidateAddress(basePhys + off);
-        }
-        if (lowestCache) {
-          lowestCache->invalidateAddress(basePhys + off);
-        }
-      }
-    }
+  // TODO: Implement with new cache
+  uint32_t pageSizeBytes = 1u << bitsPerPageOffset;
+  uint32_t dcIndex, dcTag, l2Index, l2Tag, dcOffset, l2Offset;
+
+  dataCache->extract_address_properties(0, &dcOffset, &dcIndex, &dcTag);
+  if (dataCache->hasL2()) {
+    l2Cache->extract_address_properties(0, &l2Offset, &l2Index, &l2Tag);
+  }
+
+  std::cout << "invalidating DC line with tag " << dcTag << " and index " << dcIndex << " since phys page " << freedPFN << " is being replaced\n";
+  std::cout << "invalidating L2 line with tag " << l2Tag << " and index " << l2Index << " since phys page " << freedPFN << " is being replaced\n";
+
+  dataCache->invalidateFromPFN(freedPFN);
+  if (dataCache->hasL2()) {
+    l2Cache->invalidateFromPFN(freedPFN);
   }
   return freedPFN;
 }
@@ -163,5 +155,14 @@ void PageTable::printPageTable() {
               << entry.isValid() << "\t" 
               << entry.isDirty() << "\t" 
               << entry.getTimestamp() << "\n";
+  }
+}
+
+void PageTable::setCaches(DataCache *dataCache, L2Cache *l2Cache) {
+  this->dataCache = dataCache;
+  if (dataCache->hasL2()) {
+    this->l2Cache = l2Cache;
+  } else {
+    this->l2Cache = nullptr;
   }
 }

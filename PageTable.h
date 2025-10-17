@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 #include "TLB.h"
-#include "cache.h"
+#include "DC.h"
 #include "statistics.h"
 
 class PageTableEntry {
@@ -44,8 +44,8 @@ class PageTable {
     uint32_t findLRU();
     TLB* tlb;
     Statistics* stats;
-    Cache* highestCache; // the highest cache in the hierarchy, used for write-backs
-    Cache* lowestCache; // the lowest cache in the hierarchy, used for fetching on a page fault
+    DataCache* dataCache;
+    L2Cache* l2Cache; 
     void handleSoftPageFault(PageTableEntry* entry);
   public:
     PageTable(uint32_t virtualPageCount, uint32_t physicalPageCount, uint32_t pageSize);
@@ -57,7 +57,6 @@ class PageTable {
     void markAddressDirty(uint32_t virtualAddress);
     void incrementTimestamp(uint32_t vpn);
     void setTLB(TLB* tlb);
-    void setHighestCache(Cache* cache);
-    void setLowestCache(Cache* cache);
+    void setCaches(DataCache *dataCache, L2Cache *l2Cache);
     void setStats(Statistics* stats) { this->stats = stats; }
 };

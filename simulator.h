@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-#include "cache.h"
+#include "DC.h"
 #include "trace_retrieval.h"
 #include "PageTable.h"
 #include "TLB.h"
@@ -9,7 +9,7 @@
 
 class Simulator {
   public:
-    Simulator(Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb, TraceReciever instructions, bool useVirtualAddresses, bool useTLB, bool useL2Cache);
+    Simulator(DataCache dataCache, L2Cache l2Cache, PageTable pageTable, TLB tlb, TraceReciever instructions, bool useVirtualAddresses, bool useTLB, bool useL2Cache);
   private:
     bool useL2;
     bool useVA;
@@ -18,9 +18,9 @@ class Simulator {
     int memoryAccesses = 0;
     int pageTableAccesses = 0;
     int diskAccesses = 0;
-    void print_hierarchy_setup(Cache dataCache, Cache L2cache, PageTable pageTable, TLB tlb);
+    void print_hierarchy_setup(DataCache dataCache, L2Cache l2Cache, PageTable pageTable, TLB tlb);
     void printHeader();
     void printOutputRow();
-    void processInstructions(TraceReciever instructions, Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb);
+    void processInstructions(TraceReciever instructions, DataCache dataCache, L2Cache l2Cache, PageTable pageTable, TLB tlb);
     void printOutputRow(uint32_t address  = 0, uint32_t VPN = 0, uint32_t pageOffset = 0,uint32_t TLBTag   = 0, uint32_t TLBIndex = 0, short TLBRes = -1,short PTRes       = -1, uint32_t PFN = 0,uint32_t DCTag    = 0, uint32_t DCIndex = 0, short DCRes = -1,uint32_t L2Tag    = 0, uint32_t L2Index = 0, short L2Res = -1);
 };

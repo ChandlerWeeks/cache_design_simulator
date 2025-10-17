@@ -4,14 +4,14 @@
 #include <cstdint>
 #include <cstdio>
 
-void Simulator::print_hierarchy_setup(Cache dataCache, Cache L2cache, PageTable pageTable, TLB tlb) {
+void Simulator::print_hierarchy_setup(DataCache dataCache, L2Cache l2Cache, PageTable pageTable, TLB tlb) {
   tlb.printTLBInfo();
   std::cout << std::endl;
   pageTable.printPTAttributes();
   std::cout << std::endl;
   dataCache.printCacheProperties();
   std::cout << std::endl;
-  L2cache.printCacheProperties();
+  l2Cache.printCacheProperties();
   std::cout << std::endl;
 
   if (useVA) {
@@ -114,7 +114,7 @@ std::string boolToHitMiss(short val) {
   return "";
 }
 
-void Simulator::processInstructions(TraceReciever instructions, Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb) {
+void Simulator::processInstructions(TraceReciever instructions, DataCache dataCache, L2Cache l2Cache, PageTable pageTable, TLB tlb) {
   uint32_t address = 0, VPN = 0, pageOffset = 0,
            TLBTag = 0, TLBIndex = 0, PFN = 0,
            DCTag = 0, DCIndex = 0,
@@ -133,24 +133,13 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
     }
     uint32_t virtualAddress = processAddress(instructions.getRecentInstruction()[1]);
     uint32_t physicalAddress;
-    Cache* lowestCache = nullptr;
-    Cache* highestCache = nullptr;
-    if (useL2) {
-      lowestCache = &L2Cache;
-      highestCache = &dataCache;
-      L2Cache.setParent(&dataCache);
-      dataCache.setNextLevel(&L2Cache);
-    } else {
-      highestCache = &dataCache;
-    }
 
     address = virtualAddress;
     VPN = virtualAddress >> pageTable.getBitsPerPageOffset();
     pageOffset = virtualAddress & ( (1 << pageTable.getBitsPerPageOffset()) - 1);
     if (useVA && useTLB) {
       pageTable.setTLB(&tlb);
-      pageTable.setLowestCache(lowestCache);
-      pageTable.setHighestCache(highestCache);
+      pageTable.setCaches(&dataCache, &l2Cache);
     }
 
     if (useTLB) {
@@ -184,15 +173,15 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
     if (useL2) {
       if (DCRes == 0) { // L2 only accessed on DC miss
         if (isRead) {
-          L2Cache.cacheRead(physicalAddress, L2Index, L2Tag, L2Res);
+          l2Cache.cacheRead(physicalAddress, L2Index, L2Tag, L2Res);
         } else { // write
-          L2Cache.cacheWrite(physicalAddress, L2Index, L2Tag, L2Res);
+          l2Cache.cacheWrite(physicalAddress, L2Index, L2Tag, L2Res);
         }
       } else if (dataCache.isWriteThrough() && !isRead) {
         // on a DC hit with write-through, write to L2 as well
         uint32_t dummy1, dummy2;
         short dummy3;
-        L2Cache.cacheWrite(physicalAddress, dummy1, dummy2, dummy3);
+        l2Cache.cacheWrite(physicalAddress, dummy1, dummy2, dummy3);
 
       }
     }
@@ -207,7 +196,7 @@ void Simulator::processInstructions(TraceReciever instructions, Cache dataCache,
   }
 }
 
-Simulator::Simulator(Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tlb, TraceReciever instructions, bool useVirtualAddresses, bool useTLB, bool useL2Cache) {
+Simulator::Simulator(DataCache dataCache, L2Cache l2Cache, PageTable pageTable, TLB tlb, TraceReciever instructions, bool useVirtualAddresses, bool useTLB, bool useL2Cache) {
   this->useVA = useVirtualAddresses;
   this->useTLB = useTLB;
   this->useL2 = useL2Cache;
@@ -217,11 +206,15 @@ Simulator::Simulator(Cache dataCache, Cache L2Cache, PageTable pageTable, TLB tl
   tlb.setStats(&stats);
   pageTable.setStats(&stats);
   dataCache.setStats(&stats);
-  L2Cache.setStats(&stats);
+  l2Cache.setStats(&stats);
 
-  Simulator::print_hierarchy_setup(dataCache, L2Cache, pageTable, tlb);
+  // set parents and child caches
+  dataCache.setL2Cache(&l2Cache);
+  l2Cache.setParent(&dataCache);
+
+  Simulator::print_hierarchy_setup(dataCache, l2Cache, pageTable, tlb);
   std::cout << std::endl;
   printHeader();
-  processInstructions(instructions, dataCache, L2Cache, pageTable, tlb);
+  processInstructions(instructions, dataCache, l2Cache, pageTable, tlb);
   stats.printStatistics();
 }

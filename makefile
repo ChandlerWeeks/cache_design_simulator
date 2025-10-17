@@ -1,9 +1,11 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
 
-EXECUTABLE = memhier_sim
+EXECUTABLE = memhier
 
 SOURCES = cache.cpp \
+          DC.cpp \
+          L2.cpp \
           CacheLine.cpp \
           config_retrieval.cpp \
           main.cpp \
