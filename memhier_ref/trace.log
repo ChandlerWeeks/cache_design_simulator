@@ -1,0 +1,20 @@
+write at 00000257
+
+write at 00000119
+
+read at 00000166
+
+read at 000003b8
+
+read at 000001dd
+
+read at 00000007
+
+write at 0000001d
+
+read at 000003d2
+
+write at 0000000d
+
+read at 00000024
+

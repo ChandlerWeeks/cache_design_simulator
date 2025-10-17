@@ -62,6 +62,7 @@ std::string hitMissStr(short res) {
         case 0:  return "miss";
         case 1:  return "hit";
     }
+    return "";
 }
 
 void Simulator::printOutputRow(

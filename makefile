@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
 
-EXECUTABLE = memhier_sim
+EXECUTABLE = memhier
 
 SOURCES = cache.cpp \
           CacheLine.cpp \
@@ -20,17 +20,18 @@ OBJECTS = $(SOURCES:.cpp=.o)
 .DEFAULT_GOAL := all 
 
 .PHONY: all
-all: $(EXECUTABLE)
+all: build run clean
+
+.PHONY: build
+build: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) $(OBJECTS) -o $@
 
-.PHONY: execute
-execute: all
-	./$(EXECUTABLE)
-	$(MAKE) clean
+.PHONY: run
+run: $(EXECUTABLE)
+	./$(EXECUTABLE) < test.dat
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS)
-	rm -f *.gcno *.gcda
+	rm -f $(OBJECTS) $(EXECUTABLE)
